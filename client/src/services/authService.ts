@@ -61,6 +61,26 @@ function createFallbackUser(email: string, name?: string): User {
   };
 }
 
+function isBackendUnreachableError(err: any): boolean {
+  if (!err) return true;
+  const msg = (err.message || "").toLowerCase();
+  return (
+    msg.includes("405") ||
+    msg.includes("404") ||
+    msg.includes("method not allowed") ||
+    msg.includes("backend server") ||
+    msg.includes("failed to fetch") ||
+    msg.includes("networkerror") ||
+    msg.includes("500") ||
+    msg.includes("502") ||
+    msg.includes("503") ||
+    msg.includes("load failed") ||
+    msg.includes("cors") ||
+    msg.includes("unexpected end of json") ||
+    msg.includes("token '<'")
+  );
+}
+
 export const authService = {
   login: async (email: string, password: string, rememberMe: boolean = true) => {
     try {
@@ -72,8 +92,10 @@ export const authService = {
       }
       return res.data;
     } catch (err: any) {
-      // Fallback for standalone/local mode when backend is unreachable
-      if (err.message && (err.message.includes("backend server") || err.message.includes("Failed to fetch"))) {
+      if (err.message && (err.message.includes("401") || err.message.toLowerCase().includes("invalid credentials") || err.message.toLowerCase().includes("incorrect password"))) {
+        throw new Error("Invalid email or password. Please try again.");
+      }
+      if (isBackendUnreachableError(err)) {
         const localUsers = getLocalUsers();
         const existing = localUsers[email.toLowerCase().trim()];
         const user = existing?.user || createFallbackUser(email);
@@ -111,7 +133,7 @@ export const authService = {
       }
     } catch (err: any) {
       console.warn("Backend email-login note:", err.message);
-      if (!err.message || (!err.message.includes("backend server") && !err.message.includes("Failed to fetch"))) {
+      if (!isBackendUnreachableError(err) && err.message && !err.message.includes("400")) {
         throw err;
       }
     }
@@ -147,7 +169,7 @@ export const authService = {
       }
       return res.data;
     } catch (err: any) {
-      if (err.message && (err.message.includes("backend server") || err.message.includes("Failed to fetch"))) {
+      if (isBackendUnreachableError(err)) {
         const user = createFallbackUser(email, name);
         const token = "mock_jwt_token_" + Date.now();
         localStorage.setItem("fittrack_token", token);
