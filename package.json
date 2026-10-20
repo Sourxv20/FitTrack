@@ -1,0 +1,19 @@
+{
+  "name": "fittrack",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "FITTRACK - Train Smarter. Run Stronger.",
+  "scripts": {
+    "dev": "node ../scripts/dev.js",
+    "stop": "node ../scripts/stop.js",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "cd server && npm run build && cd ../client && npm run build",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "test": "cd server && npm run test",
+    "db:migrate": "cd server && npm run db:push",
+    "db:seed": "cd server && npm run db:seed"
+  }
+}

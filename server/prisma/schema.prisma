@@ -1,0 +1,218 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  name            String
+  passwordHash    String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  profile         Profile?
+  settings        UserSettings?
+  workoutSessions WorkoutSession[]
+  runs            Run[]
+  achievements    Achievement[]
+  yoyoTests       YoYoTest[]
+
+  @@map("users")
+}
+
+model Profile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarUrl          String?
+  height             Float?   // in cm
+  weight             Float?   // in kg
+  fitnessGoal        String?  // Build muscle, Improve fitness, Improve endurance, Lose weight, General fitness
+  runningGoal        String?  // e.g. 5K Run, 10K, Marathon, 20 km/week
+  dailyCalorieTarget Int      @default(500)
+  bio                String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model UserSettings {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme         String   @default("system") // light, dark, system
+  units         String   @default("metric") // metric, imperial
+  notifications Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+
+  @@map("user_settings")
+}
+
+model Exercise {
+  id            String   @id
+  name          String   @unique
+  category      String   // Chest, Back, Shoulders, Biceps, Triceps, Legs, Core
+  muscleGroup   String
+  equipment     String   // Barbell, Dumbbell, Cable, Machine, Bodyweight
+  difficulty    String   // Beginner, Intermediate, Advanced
+  description   String
+  instructions  String   // JSON string of string[]
+  tips          String?  // JSON string of string[]
+  mistakes      String?  // JSON string of string[]
+  muscles       String?  // JSON string of string[]
+  sets          Int      @default(3)
+  reps          String   @default("8-12")
+  restSeconds   Int      @default(90)
+  videoUrl      String?
+  thumbnailUrl  String?
+  animationType String?
+  createdAt     DateTime @default(now())
+
+  planExercises WorkoutPlanExercise[]
+  workoutSets   WorkoutSet[]
+
+  @@map("exercises")
+}
+
+model WorkoutPlan {
+  id             String                @id
+  dayOfWeek      String                // Monday, Tuesday, ...
+  shortDay       String                // MON, TUE, ...
+  title          String                // Push Day, Pull Day, ...
+  focus          String                // Chest • Shoulders • Triceps
+  description    String
+  duration       String                // 45 min
+  targetCalories Int                   // 320
+  type           String                // Workout, Recovery, Rest
+  createdAt      DateTime              @default(now())
+
+  exercises      WorkoutPlanExercise[]
+  sessions       WorkoutSession[]
+
+  @@map("workout_plans")
+}
+
+model WorkoutPlanExercise {
+  id            String      @id @default(uuid())
+  workoutPlanId String
+  workoutPlan   WorkoutPlan @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+  exerciseId    String
+  exercise      Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  orderIndex    Int         @default(0)
+  targetSets    Int         @default(3)
+  targetReps    String      @default("8-12")
+  restSeconds   Int         @default(90)
+
+  @@index([workoutPlanId])
+  @@index([exerciseId])
+  @@map("workout_plan_exercises")
+}
+
+model WorkoutSession {
+  id                      String       @id @default(uuid())
+  userId                  String
+  user                    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutPlanId           String?
+  workoutPlan             WorkoutPlan? @relation(fields: [workoutPlanId], references: [id], onDelete: SetNull)
+  title                   String
+  startedAt               DateTime     @default(now())
+  completedAt             DateTime?
+  durationSeconds         Int          @default(0)
+  caloriesBurned          Int          @default(0)
+  exercisesCompletedCount Int          @default(0)
+  notes                   String?
+  createdAt               DateTime     @default(now())
+
+  sets                    WorkoutSet[]
+
+  @@index([userId])
+  @@map("workout_sessions")
+}
+
+model WorkoutSet {
+  id               String         @id @default(uuid())
+  workoutSessionId String
+  workoutSession   WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  exerciseId       String
+  exercise         Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  setNumber        Int
+  weightKg         Float
+  reps             Int
+  completed        Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+
+  @@index([workoutSessionId])
+  @@index([exerciseId])
+  @@map("workout_sets")
+}
+
+model Run {
+  id              String          @id @default(uuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt       DateTime        @default(now())
+  completedAt     DateTime?
+  durationSeconds Int
+  distanceKm      Float
+  avgPace         String          // mm:ss /km
+  caloriesBurned  Int
+  notes           String?
+  createdAt       DateTime        @default(now())
+
+  routePoints     RunRoutePoint[]
+
+  @@index([userId])
+  @@map("runs")
+}
+
+model RunRoutePoint {
+  id         String   @id @default(uuid())
+  runId      String
+  run        Run      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  latitude   Float
+  longitude  Float
+  accuracy   Float?
+  speed      Float?
+  timestamp  DateTime @default(now())
+  pointIndex Int
+
+  @@index([runId])
+  @@map("run_route_points")
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // FIRST_WORKOUT, FIRST_RUN, STREAK_7, DISTANCE_10K, etc.
+  title       String
+  description String
+  icon        String?
+  earnedAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("achievements")
+}
+
+model YoYoTest {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testType     String   @default("Yo-Yo IR1")
+  finalLevel   Int
+  finalShuttle Int
+  finalSpeed   Float
+  distance     Int      // distance in meters (e.g. 560)
+  duration     Int      // duration in seconds (e.g. 324)
+  calories     Int      // estimated calories (e.g. 68)
+  completedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@map("yoyo_tests")
+}
