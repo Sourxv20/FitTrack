@@ -20,7 +20,11 @@ import {
   Trash2,
   ChevronRight,
   Footprints,
-  Zap
+  Zap,
+  Plus,
+  Minus,
+  Layers,
+  Globe
 } from "lucide-react";
 import { runService } from "../../services/workoutService";
 import { Run, RoutePoint } from "../../types";
@@ -30,6 +34,58 @@ import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import { Modal } from "../../components/Modal";
 import { YoYoTest } from "./YoYoTest";
+
+interface LocationPreset {
+  id: string;
+  name: string;
+  city: string;
+  lat: number;
+  lng: number;
+  description: string;
+}
+
+const RUNNING_PRESETS: LocationPreset[] = [
+  {
+    id: "delhi",
+    name: "India Gate Loop",
+    city: "New Delhi, India",
+    lat: 28.6129,
+    lng: 77.2295,
+    description: "Kartavya Path boulevard perimeter"
+  },
+  {
+    id: "mumbai",
+    name: "Marine Drive",
+    city: "Mumbai, India",
+    lat: 18.9431,
+    lng: 72.8231,
+    description: "Queen's Necklace seaside promenade"
+  },
+  {
+    id: "nyc",
+    name: "Central Park Loop",
+    city: "New York, USA",
+    lat: 40.785091,
+    lng: -73.968285,
+    description: "Jacqueline Kennedy Reservoir loop"
+  },
+  {
+    id: "london",
+    name: "Hyde Park Circuit",
+    city: "London, UK",
+    lat: 51.507268,
+    lng: -0.16573,
+    description: "Serpentine waterside route"
+  },
+  {
+    id: "sf",
+    name: "Golden Gate Shoreline",
+    city: "San Francisco, USA",
+    lat: 37.8085,
+    lng: -122.4744,
+    description: "Crissy Field bay trail"
+  }
+];
 
 export const Running: React.FC = () => {
   // Activity Mode Selector: "gps" | "yoyo"
@@ -56,13 +112,21 @@ export const Running: React.FC = () => {
   const [selectedRunDetail, setSelectedRunDetail] = useState<Run | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
 
-  // Leaflet map refs
+  // Leaflet map refs & theme
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const polylineRef = useRef<L.Polyline | null>(null);
   const currentMarkerRef = useRef<L.Marker | null>(null);
   const accuracyCircleRef = useRef<L.Circle | null>(null);
   const startMarkerRef = useRef<L.Marker | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
+
+  const [mapTheme, setMapTheme] = useState<"dark" | "street">("dark");
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("auto");
+
+  // Simulation references (stable anchor & step counter)
+  const simOriginRef = useRef<{ lat: number; lng: number } | null>(null);
+  const simStepRef = useRef<number>(0);
 
   // Detail Map Ref
   const detailMapRef = useRef<HTMLDivElement>(null);
@@ -108,25 +172,25 @@ export const Running: React.FC = () => {
     return () => clearInterval(timer);
   }, [isRunning, isPaused]);
 
-  // Draw / Update pulsing user location marker & accuracy circle
+  // Draw / Update pulsing user location marker & accuracy circle (Athletic Coral)
   const updateUserMarker = (lat: number, lng: number, accuracy?: number) => {
     if (!mapInstanceRef.current) return;
 
     const userPinIcon = L.divIcon({
       className: "custom-pin-user",
       html: `
-        <div style="position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
-          <div style="position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(37,99,235,0.35);animation:markerPulse 2s cubic-bezier(0.4,0,0.6,1) infinite;"></div>
-          <div style="width:14px;height:14px;border-radius:50%;background:#2563EB;border:3px solid #ffffff;box-shadow:0 0 10px rgba(37,99,235,0.9);position:relative;z-index:2;"></div>
+        <div style="position:relative;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;width:30px;height:30px;border-radius:50%;background:rgba(255,107,74,0.35);animation:markerPulse 2s cubic-bezier(0.4,0,0.6,1) infinite;"></div>
+          <div style="width:16px;height:16px;border-radius:50%;background:#FF6B4A;border:3px solid #ffffff;box-shadow:0 0 12px rgba(255,107,74,0.9);position:relative;z-index:2;"></div>
         </div>
       `,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
 
     if (!currentMarkerRef.current) {
       currentMarkerRef.current = L.marker([lat, lng], { icon: userPinIcon })
-        .bindTooltip("You are here", { permanent: false, direction: "top", offset: [0, -14] })
+        .bindTooltip("You are here", { permanent: false, direction: "top", offset: [0, -16] })
         .addTo(mapInstanceRef.current);
     } else {
       currentMarkerRef.current.setLatLng([lat, lng]);
@@ -136,8 +200,8 @@ export const Running: React.FC = () => {
       if (!accuracyCircleRef.current) {
         accuracyCircleRef.current = L.circle([lat, lng], {
           radius: accuracy,
-          color: "#2563EB",
-          fillColor: "#3B82F6",
+          color: "#FF6B4A",
+          fillColor: "#FF6B4A",
           fillOpacity: 0.12,
           weight: 1.5
         }).addTo(mapInstanceRef.current);
@@ -163,6 +227,7 @@ export const Running: React.FC = () => {
       const { latitude, longitude, accuracy } = pos.coords;
       setCurrentCoords({ lat: latitude, lng: longitude });
       setGpsAccuracy(accuracy);
+      setSelectedPresetId("auto");
       setGpsStatus(
         accuracy <= 30
           ? `GPS Locked • High Accuracy (±${Math.round(accuracy)}m)`
@@ -179,26 +244,24 @@ export const Running: React.FC = () => {
 
     const handleError = (err: GeolocationPositionError) => {
       console.warn("High-accuracy location failed, falling back to low-accuracy:", err.message);
-      // Fallback: enableHighAccuracy = false (uses IP / WiFi BSSID, fast and reliable for laptops)
       navigator.geolocation.getCurrentPosition(
         handleSuccess,
         (fallbackErr) => {
           setIsLocating(false);
           console.warn("Fallback geolocation failed:", fallbackErr.message);
           if (fallbackErr.code === 1) {
-            setGpsStatus("Location permission denied. Please allow GPS.");
-            showToast("Please allow location access to show your current location on the map.", "warning");
+            setGpsStatus("Location permission denied. Pick a preset or allow GPS.");
           } else {
-            setGpsStatus("GPS Signal Unavailable");
+            setGpsStatus("GPS Signal Unavailable. Using preset running circuit.");
           }
         },
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
       );
     };
 
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
       enableHighAccuracy: true,
-      timeout: 6000,
+      timeout: 4000,
       maximumAge: 30000
     });
   };
@@ -208,7 +271,7 @@ export const Running: React.FC = () => {
     requestCurrentLocation(true);
   }, []);
 
-  // Leaflet Map Initialization
+  // Leaflet Map Initialization with CartoDB Dark Matter / Street tiles
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -217,36 +280,52 @@ export const Running: React.FC = () => {
         delete (mapContainerRef.current as any)._leaflet_id;
       }
 
-      // Default to Delhi or user's coords if already acquired
-      const initialLat = currentCoords?.lat || 28.6139;
-      const initialLng = currentCoords?.lng || 77.209;
+      const initialLat = currentCoords?.lat || 28.6129;
+      const initialLng = currentCoords?.lng || 77.2295;
 
       try {
         const map = L.map(mapContainerRef.current, {
           center: [initialLat, initialLng],
-          zoom: currentCoords ? 16 : 14,
+          zoom: currentCoords ? 16 : 15,
           zoomControl: false
         });
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        const tileUrl =
+          mapTheme === "dark"
+            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+
+        const tileLayer = L.tileLayer(tileUrl, {
+          attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
+          maxZoom: 19,
+          subdomains: "abcd"
         }).addTo(map);
+
+        tileLayerRef.current = tileLayer;
 
         // Create polyline for route
         const polyline = L.polyline([], {
           color: "#FF6B4A",
           weight: 5,
-          opacity: 0.9,
+          opacity: 0.95,
           smoothFactor: 1
         }).addTo(map);
 
         polylineRef.current = polyline;
         mapInstanceRef.current = map;
 
-        if (currentCoords) {
-          updateUserMarker(currentCoords.lat, currentCoords.lng, gpsAccuracy || undefined);
-          map.setView([currentCoords.lat, currentCoords.lng], 16);
-        }
+        updateUserMarker(initialLat, initialLng, gpsAccuracy || undefined);
+
+        // Multiple invalidation passes to prevent gray tile box
+        const invalidate = () => {
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize({ pan: false });
+          }
+        };
+        setTimeout(invalidate, 80);
+        setTimeout(invalidate, 250);
+        setTimeout(invalidate, 600);
+        setTimeout(invalidate, 1200);
       } catch (err) {
         console.warn("Leaflet map init note:", err);
       }
@@ -262,6 +341,58 @@ export const Running: React.FC = () => {
       }
     };
   }, []);
+
+  // Sync Map Theme (Dark / Street)
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    if (tileLayerRef.current) {
+      mapInstanceRef.current.removeLayer(tileLayerRef.current);
+    }
+    const tileUrl =
+      mapTheme === "dark"
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+
+    const newLayer = L.tileLayer(tileUrl, {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
+      maxZoom: 19,
+      subdomains: "abcd"
+    }).addTo(mapInstanceRef.current);
+
+    newLayer.bringToBack();
+    tileLayerRef.current = newLayer;
+  }, [mapTheme]);
+
+  // Zoom and Theme Actions
+  const handleZoomIn = () => {
+    mapInstanceRef.current?.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    mapInstanceRef.current?.zoomOut();
+  };
+
+  const handleToggleTheme = () => {
+    setMapTheme((prev) => (prev === "dark" ? "street" : "dark"));
+  };
+
+  const handleSelectPreset = (presetId: string) => {
+    if (presetId === "auto") {
+      setSelectedPresetId("auto");
+      requestCurrentLocation(true);
+      return;
+    }
+    const preset = RUNNING_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    setSelectedPresetId(presetId);
+    setCurrentCoords({ lat: preset.lat, lng: preset.lng });
+    setGpsStatus(`📍 Location: ${preset.name} (${preset.city})`);
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([preset.lat, preset.lng], 16, { duration: 1.2 });
+      updateUserMarker(preset.lat, preset.lng);
+    }
+    showToast(`Centered on ${preset.name} (${preset.city})`, "info");
+  };
 
   // Invalidate map size and redraw when returning to GPS Run or container resizes
   const refreshMapSize = () => {
@@ -443,54 +574,40 @@ export const Running: React.FC = () => {
     };
   }, [isRunning, isPaused, isSimulating]);
 
-  // Live GPS Simulation Engine (Animates route drawing & runner movement on desktop)
+  // Live GPS Simulation Engine (Smooth parametric park loop around origin)
   useEffect(() => {
     if (!isRunning || isPaused || !isSimulating) return;
 
-    const baseLat = currentCoords?.lat || 28.6139;
-    const baseLng = currentCoords?.lng || 77.209;
-
-    let step = routePoints.length;
-
     const simTimer = setInterval(() => {
-      step += 1;
-      const angle = step * 0.14;
-      const radiusLat = 0.0028 + Math.sin(step * 0.05) * 0.0008;
-      const radiusLng = 0.0036 + Math.cos(step * 0.05) * 0.0008;
-      const nextLat = baseLat + Math.sin(angle) * radiusLat;
-      const nextLng = baseLng + Math.cos(angle) * radiusLng;
+      if (!simOriginRef.current) return;
+      simStepRef.current += 1;
+      const step = simStepRef.current;
+
+      // Realistic 1.2 km running loop geometry (smooth parametric curve)
+      const t = step * 0.08;
+      const latOffset = Math.sin(t) * 0.0024 + Math.sin(t * 2) * 0.0007;
+      const lngOffset = Math.cos(t) * 0.0032 + Math.sin(t * 3) * 0.0005;
+
+      const nextLat = simOriginRef.current.lat + latOffset;
+      const nextLng = simOriginRef.current.lng + lngOffset;
 
       const newPoint: RoutePoint = {
         latitude: nextLat,
         longitude: nextLng,
         accuracy: 3,
-        speed: 3.8, // ~13.7 km/h
+        speed: 3.6, // ~13 km/h pace
         timestamp: Date.now(),
         pointIndex: step
       };
 
       setRoutePoints((prev) => [...prev, newPoint]);
-      setDistanceKm((prev) => Math.round((prev + 0.012) * 100) / 100);
+      setDistanceKm((prev) => Math.round((prev + 0.011) * 100) / 100);
       setCurrentCoords({ lat: nextLat, lng: nextLng });
       setGpsAccuracy(3);
-      setGpsStatus("⚡ Simulation Active • Drawing Live Route (4:18 /km)");
+      setGpsStatus("⚡ Simulation Active • Drawing Live Route (4:32 /km)");
 
       if (mapInstanceRef.current) {
         mapInstanceRef.current.panTo([nextLat, nextLng], { animate: true });
-
-        // Start marker
-        if (!startMarkerRef.current) {
-          const startIcon = L.divIcon({
-            className: "custom-pin-start",
-            html: `<div style="background:#22C55E;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
-          });
-          startMarkerRef.current = L.marker([nextLat, nextLng], { icon: startIcon })
-            .bindTooltip("Start Point", { permanent: false, direction: "bottom" })
-            .addTo(mapInstanceRef.current);
-        }
-
         updateUserMarker(nextLat, nextLng, 3);
 
         if (polylineRef.current) {
@@ -500,7 +617,7 @@ export const Running: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(simTimer);
-  }, [isRunning, isPaused, isSimulating, currentCoords, routePoints.length]);
+  }, [isRunning, isPaused, isSimulating]);
 
   // Start Real Run
   const handleStartRun = () => {
@@ -516,6 +633,11 @@ export const Running: React.FC = () => {
 
   // Start Simulated Run (Desktop Demonstration Mode)
   const handleStartSimulation = () => {
+    const originLat = currentCoords?.lat || 28.6129;
+    const originLng = currentCoords?.lng || 77.2295;
+    simOriginRef.current = { lat: originLat, lng: originLng };
+    simStepRef.current = 0;
+
     setIsSimulating(true);
     setIsRunning(true);
     setIsPaused(false);
@@ -523,11 +645,29 @@ export const Running: React.FC = () => {
     setDistanceKm(0);
     setRoutePoints([]);
     lastLocationRef.current = null;
+
     if (polylineRef.current) polylineRef.current.setLatLngs([]);
     if (startMarkerRef.current && mapInstanceRef.current) {
       mapInstanceRef.current.removeLayer(startMarkerRef.current);
       startMarkerRef.current = null;
     }
+
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setView([originLat, originLng], 16, { animate: true });
+
+      const startIcon = L.divIcon({
+        className: "custom-pin-start",
+        html: `<div style="background:#10B981;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px rgba(16,185,129,0.9)"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+      startMarkerRef.current = L.marker([originLat, originLng], { icon: startIcon })
+        .bindTooltip("Start Point", { permanent: false, direction: "bottom" })
+        .addTo(mapInstanceRef.current);
+
+      updateUserMarker(originLat, originLng, 3);
+    }
+
     setGpsStatus("⚡ Simulation Active • Drawing Live Route");
     showToast("GPS Run Simulation started! Watch the route polyline and marker animate live.", "success");
   };
@@ -652,26 +792,56 @@ export const Running: React.FC = () => {
         }
 
         const pts = fullRun.routePoints || [];
-        const centerLat = pts.length > 0 ? pts[0].latitude : 28.6139;
-        const centerLon = pts.length > 0 ? pts[0].longitude : 77.209;
+        const centerLat = pts.length > 0 ? pts[0].latitude : 28.6129;
+        const centerLon = pts.length > 0 ? pts[0].longitude : 77.2295;
 
         try {
           const map = L.map(detailMapRef.current, {
             center: [centerLat, centerLon],
-            zoom: 15
+            zoom: 15,
+            zoomControl: false
           });
 
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; OpenStreetMap'
+          L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
+            maxZoom: 19,
+            subdomains: "abcd"
           }).addTo(map);
 
           if (pts.length > 0) {
             const latLngs = pts.map((p) => [p.latitude, p.longitude] as [number, number]);
-            const polyline = L.polyline(latLngs, { color: "#FF6B4A", weight: 5 }).addTo(map);
-            map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+            const polyline = L.polyline(latLngs, {
+              color: "#FF6B4A",
+              weight: 5,
+              opacity: 0.95
+            }).addTo(map);
+
+            // Start marker
+            const startIcon = L.divIcon({
+              className: "custom-pin-start",
+              html: `<div style="background:#10B981;width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 0 8px rgba(16,185,129,0.9)"></div>`,
+              iconSize: [14, 14],
+              iconAnchor: [7, 7]
+            });
+            L.marker(latLngs[0], { icon: startIcon }).addTo(map);
+
+            // Finish marker
+            if (latLngs.length > 1) {
+              const endIcon = L.divIcon({
+                className: "custom-pin-end",
+                html: `<div style="background:#FF6B4A;width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 0 8px rgba(255,107,74,0.9)"></div>`,
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+              });
+              L.marker(latLngs[latLngs.length - 1], { icon: endIcon }).addTo(map);
+            }
+
+            map.fitBounds(polyline.getBounds(), { padding: [30, 30] });
           }
 
           detailMapInstanceRef.current = map;
+          setTimeout(() => map.invalidateSize({ pan: false }), 150);
+          setTimeout(() => map.invalidateSize({ pan: false }), 400);
         } catch (err) {
           console.warn("Detail map init note:", err);
         }
@@ -728,7 +898,7 @@ export const Running: React.FC = () => {
               {activityMode === "gps" && (
                 <motion.div
                   layoutId="runningActivityTabGlider"
-                  className="absolute inset-0 bg-blue-600 rounded-xl shadow-md shadow-blue-500/25"
+                  className="absolute inset-0 bg-[#FF6B4A] rounded-xl shadow-md shadow-[#FF6B4A]/25"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
@@ -772,7 +942,7 @@ export const Running: React.FC = () => {
                   requestCurrentLocation(true);
                 }}
                 disabled={isLocating}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-white/10 text-xs font-bold text-[#FF6B4A] transition-all shadow-sm cursor-pointer disabled:opacity-50"
                 title="Update current GPS location"
               >
                 <Navigation size={13} className={isLocating ? "animate-spin" : ""} />
@@ -863,15 +1033,19 @@ export const Running: React.FC = () => {
         </div>
 
         {/* Live Leaflet Map Container */}
-        <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 mb-8 shadow-inner">
-          <div ref={mapContainerRef} className="w-full h-full z-0" />
+        <div className="relative w-full h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 mb-8 shadow-2xl bg-[#080D1A]">
+          <div
+            ref={mapContainerRef}
+            className="w-full h-full min-h-[380px] sm:min-h-[460px] z-0"
+            style={{ width: "100%", height: "100%", minHeight: "380px" }}
+          />
 
-          {/* Current location coordinate pill */}
-          {currentCoords && (
-            <div className="absolute top-3 left-3 z-10 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-[11px] font-mono font-bold text-slate-700 dark:text-slate-300 shadow-md flex items-center gap-1.5">
-              <MapPin size={13} className="text-blue-600 dark:text-blue-400" />
+          {/* Top Left: Location Status & Coordinates Pill */}
+          <div className="absolute top-3.5 left-3.5 z-10 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <div className="px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-[11px] font-mono font-bold text-white shadow-lg flex items-center gap-1.5">
+              <MapPin size={13} className="text-[#FF6B4A]" />
               <span>
-                {currentCoords.lat.toFixed(5)}, {currentCoords.lng.toFixed(5)}
+                {currentCoords ? `${currentCoords.lat.toFixed(4)}, ${currentCoords.lng.toFixed(4)}` : "Positioning..."}
               </span>
               {gpsAccuracy && (
                 <span className="text-slate-400 font-normal">
@@ -879,16 +1053,68 @@ export const Running: React.FC = () => {
                 </span>
               )}
             </div>
-          )}
 
-          {/* Map Floating Recenter Button */}
-          <button
-            onClick={handleRecenter}
-            className="absolute bottom-4 right-4 z-10 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-lg hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all cursor-pointer"
-            title="Center on my current location"
-          >
-            <Navigation size={18} className={isLocating ? "animate-spin text-blue-600" : ""} />
-          </button>
+            <div className="px-2.5 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/10 text-[10px] font-bold text-emerald-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{isSimulating ? "SIMULATION TRACK" : gpsStatus.includes("Locked") ? "GPS ACTIVE" : "MAP READY"}</span>
+            </div>
+          </div>
+
+          {/* Top Right: Preset Location Selector & Theme Switcher */}
+          <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-2">
+            {/* Running Preset Selector */}
+            <div className="relative">
+              <select
+                value={selectedPresetId}
+                onChange={(e) => handleSelectPreset(e.target.value)}
+                className="px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-[11px] font-bold text-white shadow-lg focus:outline-none focus:border-[#FF6B4A] cursor-pointer appearance-none pr-7"
+                title="Select a famous running circuit"
+              >
+                <option value="auto">📍 Device GPS / Auto</option>
+                {RUNNING_PRESETS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    🏃 {p.name} ({p.city})
+                  </option>
+                ))}
+              </select>
+              <Globe size={12} className="absolute right-2.5 top-2.5 text-slate-400 pointer-events-none" />
+            </div>
+
+            {/* Map Tile Theme Toggle */}
+            <button
+              onClick={handleToggleTheme}
+              className="px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-[11px] font-bold text-white shadow-lg hover:bg-slate-800 transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Toggle Map Style (Dark / Street)"
+            >
+              <Layers size={13} className="text-cyan-400" />
+              <span className="hidden sm:inline">{mapTheme === "dark" ? "Dark Map" : "Street Map"}</span>
+            </button>
+          </div>
+
+          {/* Bottom Right Floating Map Zoom & Recenter Controls */}
+          <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-1.5">
+            <button
+              onClick={handleZoomIn}
+              className="p-2.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-white shadow-lg hover:bg-slate-800 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+              title="Zoom In"
+            >
+              <Plus size={16} />
+            </button>
+            <button
+              onClick={handleZoomOut}
+              className="p-2.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-white shadow-lg hover:bg-slate-800 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+              title="Zoom Out"
+            >
+              <Minus size={16} />
+            </button>
+            <button
+              onClick={handleRecenter}
+              className="p-2.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-[#FF6B4A] shadow-lg hover:bg-slate-800 active:scale-95 transition-all cursor-pointer flex items-center justify-center mt-1"
+              title="Center on my location"
+            >
+              <Navigation size={16} className={isLocating ? "animate-spin" : ""} />
+            </button>
+          </div>
         </div>
 
         {/* Running Controls */}
@@ -899,9 +1125,9 @@ export const Running: React.FC = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={handleStartRun}
-                className="flex items-center justify-center gap-2.5 px-8 py-4 bg-[#CCFF00] hover:bg-[#B5E600] active:scale-95 text-black font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-[#CCFF00]/25 transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2.5 px-8 py-4 bg-[#FF6B4A] hover:bg-[#FA5A36] active:scale-95 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-[#FF6B4A]/25 transition-all cursor-pointer"
               >
-                <Play size={18} className="fill-black text-black" />
+                <Play size={18} className="fill-white text-white" />
                 <span>START GPS RUN</span>
               </motion.button>
 
@@ -909,9 +1135,9 @@ export const Running: React.FC = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={handleStartSimulation}
-                className="flex items-center justify-center gap-2.5 px-7 py-4 bg-cyan-400 hover:bg-cyan-300 active:scale-95 text-black font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-cyan-400/25 transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2.5 px-7 py-4 bg-[#0B1528] hover:bg-[#132342] border border-cyan-500/30 hover:border-cyan-400 active:scale-95 text-cyan-400 font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-cyan-950/40 transition-all cursor-pointer"
               >
-                <Zap size={18} className="fill-black text-black" />
+                <Zap size={18} className="fill-cyan-400 text-cyan-400" />
                 <span>⚡ SIMULATE RUN (DEMO)</span>
               </motion.button>
             </div>
