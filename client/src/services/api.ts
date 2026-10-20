@@ -83,6 +83,9 @@ export async function request<T>(endpoint: string, options: RequestOptions = {})
       try {
         data = JSON.parse(text);
       } catch {
+        if (contentType && contentType.includes("text/html")) {
+          throw new Error("Backend API not reachable (received HTML). Running in offline client mode.");
+        }
         data = { message: text || `Request failed with status ${response.status}` };
       }
     }

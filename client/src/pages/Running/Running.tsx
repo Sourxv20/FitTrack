@@ -79,9 +79,10 @@ export const Running: React.FC = () => {
     const loadRuns = async () => {
       try {
         const res = await runService.getRuns();
-        setSavedRuns(res);
+        setSavedRuns(Array.isArray(res) ? res : []);
       } catch (err) {
         console.error("Failed to load run history:", err);
+        setSavedRuns([]);
       }
     };
     loadRuns();
@@ -212,34 +213,42 @@ export const Running: React.FC = () => {
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
+      if ((mapContainerRef.current as any)._leaflet_id) {
+        delete (mapContainerRef.current as any)._leaflet_id;
+      }
+
       // Default to Delhi or user's coords if already acquired
       const initialLat = currentCoords?.lat || 28.6139;
       const initialLng = currentCoords?.lng || 77.209;
 
-      const map = L.map(mapContainerRef.current, {
-        center: [initialLat, initialLng],
-        zoom: currentCoords ? 16 : 14,
-        zoomControl: false
-      });
+      try {
+        const map = L.map(mapContainerRef.current, {
+          center: [initialLat, initialLng],
+          zoom: currentCoords ? 16 : 14,
+          zoomControl: false
+        });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
 
-      // Create polyline for route
-      const polyline = L.polyline([], {
-        color: "#2563EB",
-        weight: 5,
-        opacity: 0.85,
-        smoothFactor: 1
-      }).addTo(map);
+        // Create polyline for route
+        const polyline = L.polyline([], {
+          color: "#FF6B4A",
+          weight: 5,
+          opacity: 0.9,
+          smoothFactor: 1
+        }).addTo(map);
 
-      polylineRef.current = polyline;
-      mapInstanceRef.current = map;
+        polylineRef.current = polyline;
+        mapInstanceRef.current = map;
 
-      if (currentCoords) {
-        updateUserMarker(currentCoords.lat, currentCoords.lng, gpsAccuracy || undefined);
-        map.setView([currentCoords.lat, currentCoords.lng], 16);
+        if (currentCoords) {
+          updateUserMarker(currentCoords.lat, currentCoords.lng, gpsAccuracy || undefined);
+          map.setView([currentCoords.lat, currentCoords.lng], 16);
+        }
+      } catch (err) {
+        console.warn("Leaflet map init note:", err);
       }
     }
 
@@ -247,6 +256,9 @@ export const Running: React.FC = () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+      }
+      if (mapContainerRef.current) {
+        delete (mapContainerRef.current as any)._leaflet_id;
       }
     };
   }, []);
@@ -596,7 +608,7 @@ export const Running: React.FC = () => {
 
       // Refresh runs list
       const res = await runService.getRuns();
-      setSavedRuns(res);
+      setSavedRuns(Array.isArray(res) ? res : []);
     } catch (err: any) {
       showToast(err.message || "Failed to save run.", "error");
     } finally {
@@ -625,29 +637,44 @@ export const Running: React.FC = () => {
         detailMapInstanceRef.current.remove();
         detailMapInstanceRef.current = null;
       }
+      if (detailMapRef.current && (detailMapRef.current as any)._leaflet_id) {
+        delete (detailMapRef.current as any)._leaflet_id;
+      }
 
       runService.getRunById(selectedRunDetail.id).then((fullRun) => {
         if (!detailMapRef.current) return;
+        if (detailMapInstanceRef.current) {
+          detailMapInstanceRef.current.remove();
+          detailMapInstanceRef.current = null;
+        }
+        if (detailMapRef.current && (detailMapRef.current as any)._leaflet_id) {
+          delete (detailMapRef.current as any)._leaflet_id;
+        }
+
         const pts = fullRun.routePoints || [];
         const centerLat = pts.length > 0 ? pts[0].latitude : 28.6139;
         const centerLon = pts.length > 0 ? pts[0].longitude : 77.209;
 
-        const map = L.map(detailMapRef.current, {
-          center: [centerLat, centerLon],
-          zoom: 15
-        });
+        try {
+          const map = L.map(detailMapRef.current, {
+            center: [centerLat, centerLon],
+            zoom: 15
+          });
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; OpenStreetMap'
+          }).addTo(map);
 
-        if (pts.length > 0) {
-          const latLngs = pts.map((p) => [p.latitude, p.longitude] as [number, number]);
-          const polyline = L.polyline(latLngs, { color: "#2563EB", weight: 5 }).addTo(map);
-          map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+          if (pts.length > 0) {
+            const latLngs = pts.map((p) => [p.latitude, p.longitude] as [number, number]);
+            const polyline = L.polyline(latLngs, { color: "#FF6B4A", weight: 5 }).addTo(map);
+            map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+          }
+
+          detailMapInstanceRef.current = map;
+        } catch (err) {
+          console.warn("Detail map init note:", err);
         }
-
-        detailMapInstanceRef.current = map;
       });
     }
 
@@ -655,6 +682,9 @@ export const Running: React.FC = () => {
       if (detailMapInstanceRef.current) {
         detailMapInstanceRef.current.remove();
         detailMapInstanceRef.current = null;
+      }
+      if (detailMapRef.current) {
+        delete (detailMapRef.current as any)._leaflet_id;
       }
     };
   }, [selectedRunDetail]);
@@ -1132,7 +1162,7 @@ export const Running: React.FC = () => {
                     showToast("Run deleted.", "info");
                     setSelectedRunDetail(null);
                     const res = await runService.getRuns();
-                    setSavedRuns(res);
+                    setSavedRuns(Array.isArray(res) ? res : []);
                   }
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 text-xs font-bold transition-colors"

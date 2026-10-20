@@ -116,9 +116,10 @@ export const YoYoTest: React.FC = () => {
   const loadHistory = useCallback(async () => {
     try {
       const res = await yoyoService.getTests();
-      setSavedTests(res);
+      setSavedTests(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error("Failed to load Yo-Yo tests history:", err);
+      setSavedTests([]);
     }
   }, []);
 
