@@ -87,6 +87,35 @@ const RUNNING_PRESETS: LocationPreset[] = [
   }
 ];
 
+export type MapLayerTheme = "street" | "satellite" | "topo";
+
+export const REAL_MAP_TILES: Record<
+  MapLayerTheme,
+  { name: string; icon: string; url: string; attribution: string; maxZoom: number }
+> = {
+  street: {
+    name: "Street",
+    icon: "🗺️",
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  },
+  satellite: {
+    name: "Satellite",
+    icon: "🛰️",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: 'Tiles &copy; <a href="https://www.esri.com/" target="_blank" rel="noreferrer">Esri</a>',
+    maxZoom: 19
+  },
+  topo: {
+    name: "Topo",
+    icon: "⛰️",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+    attribution: 'Tiles &copy; <a href="https://www.esri.com/" target="_blank" rel="noreferrer">Esri</a>',
+    maxZoom: 19
+  }
+};
+
 export const Running: React.FC = () => {
   // Activity Mode Selector: "gps" | "yoyo"
   const [activityMode, setActivityMode] = useState<"gps" | "yoyo">("gps");
@@ -121,7 +150,7 @@ export const Running: React.FC = () => {
   const startMarkerRef = useRef<L.Marker | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
 
-  const [mapTheme, setMapTheme] = useState<"dark" | "street">("dark");
+  const [mapTheme, setMapTheme] = useState<MapLayerTheme>("street");
   const [selectedPresetId, setSelectedPresetId] = useState<string>("auto");
 
   // Simulation references (stable anchor & step counter)
@@ -290,15 +319,10 @@ export const Running: React.FC = () => {
           zoomControl: false
         });
 
-        const tileUrl =
-          mapTheme === "dark"
-            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-
-        const tileLayer = L.tileLayer(tileUrl, {
-          attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-          maxZoom: 19,
-          subdomains: "abcd"
+        const tileConfig = REAL_MAP_TILES[mapTheme] || REAL_MAP_TILES.street;
+        const tileLayer = L.tileLayer(tileConfig.url, {
+          attribution: tileConfig.attribution,
+          maxZoom: tileConfig.maxZoom
         }).addTo(map);
 
         tileLayerRef.current = tileLayer;
@@ -342,21 +366,16 @@ export const Running: React.FC = () => {
     };
   }, []);
 
-  // Sync Map Theme (Dark / Street)
+  // Sync Map Theme (Street / Satellite / Topo)
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     if (tileLayerRef.current) {
       mapInstanceRef.current.removeLayer(tileLayerRef.current);
     }
-    const tileUrl =
-      mapTheme === "dark"
-        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-
-    const newLayer = L.tileLayer(tileUrl, {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-      maxZoom: 19,
-      subdomains: "abcd"
+    const tileConfig = REAL_MAP_TILES[mapTheme] || REAL_MAP_TILES.street;
+    const newLayer = L.tileLayer(tileConfig.url, {
+      attribution: tileConfig.attribution,
+      maxZoom: tileConfig.maxZoom
     }).addTo(mapInstanceRef.current);
 
     newLayer.bringToBack();
@@ -373,7 +392,7 @@ export const Running: React.FC = () => {
   };
 
   const handleToggleTheme = () => {
-    setMapTheme((prev) => (prev === "dark" ? "street" : "dark"));
+    setMapTheme((prev) => (prev === "street" ? "satellite" : prev === "satellite" ? "topo" : "street"));
   };
 
   const handleSelectPreset = (presetId: string) => {
@@ -802,10 +821,10 @@ export const Running: React.FC = () => {
             zoomControl: false
           });
 
-          L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-            maxZoom: 19,
-            subdomains: "abcd"
+          const detailTile = REAL_MAP_TILES.street;
+          L.tileLayer(detailTile.url, {
+            attribution: detailTile.attribution,
+            maxZoom: detailTile.maxZoom
           }).addTo(map);
 
           if (pts.length > 0) {
@@ -1080,15 +1099,28 @@ export const Running: React.FC = () => {
               <Globe size={12} className="absolute right-2.5 top-2.5 text-slate-400 pointer-events-none" />
             </div>
 
-            {/* Map Tile Theme Toggle */}
-            <button
-              onClick={handleToggleTheme}
-              className="px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-[11px] font-bold text-white shadow-lg hover:bg-slate-800 transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Toggle Map Style (Dark / Street)"
-            >
-              <Layers size={13} className="text-cyan-400" />
-              <span className="hidden sm:inline">{mapTheme === "dark" ? "Dark Map" : "Street Map"}</span>
-            </button>
+            {/* Real Map Layer Switcher (Street / Satellite / Topo) */}
+            <div className="flex items-center bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-xl p-0.5 shadow-lg">
+              {(["street", "satellite", "topo"] as MapLayerTheme[]).map((theme) => {
+                const active = mapTheme === theme;
+                return (
+                  <button
+                    key={theme}
+                    type="button"
+                    onClick={() => setMapTheme(theme)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                      active
+                        ? "bg-[#FF6B4A] text-white shadow-sm"
+                        : "text-slate-300 hover:text-white hover:bg-white/5"
+                    }`}
+                    title={`Switch to ${REAL_MAP_TILES[theme].name} View`}
+                  >
+                    <span>{REAL_MAP_TILES[theme].icon}</span>
+                    <span className="hidden sm:inline">{REAL_MAP_TILES[theme].name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Bottom Right Floating Map Zoom & Recenter Controls */}
