@@ -345,31 +345,29 @@ export const Landing: React.FC = () => {
 
           {/* Contextual Auth CTAs */}
           <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="text-xs font-bold text-slate-300 hover:text-white px-3 py-2 rounded-full transition-colors"
+            >
+              Athlete Sign In
+            </Link>
+
             {user ? (
               <MagneticButton
                 onClick={() => navigate("/dashboard")}
                 className="bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-[#FF6B4A]/25"
               >
-                Go to Dashboard
+                Dashboard
                 <ArrowRight size={14} />
               </MagneticButton>
             ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-xs font-bold text-slate-300 hover:text-white px-4 py-2 rounded-full transition-colors"
-                >
-                  Athlete Sign In
-                </Link>
-
-                <MagneticButton
-                  to="/register"
-                  className="bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#FF6B4A]/25"
-                >
-                  <Sparkles size={14} className="stroke-[2.5]" />
-                  Join FitTrack
-                </MagneticButton>
-              </>
+              <MagneticButton
+                to="/register"
+                className="bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#FF6B4A]/25"
+              >
+                <Sparkles size={14} className="stroke-[2.5]" />
+                Join FitTrack
+              </MagneticButton>
             )}
           </div>
         </div>
@@ -429,81 +427,84 @@ export const Landing: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.25 }}
           className="w-full max-w-xl mb-12"
         >
-          {user ? (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <MagneticButton
+          {user && (
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Link
                 to="/dashboard"
-                strength={0.3}
-                className="w-full sm:w-auto bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-black text-sm px-8 py-4 rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-[#FF6B4A]/25"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#FF6B4A]/15 hover:bg-[#FF6B4A]/25 border border-[#FF6B4A]/40 text-[#FF6B4A] rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#FF6B4A]/10"
               >
-                Go to Dashboard
-                <ArrowRight size={17} className="stroke-[2.5]" />
-              </MagneticButton>
+                <span>Continue as {user.name?.split(" ")[0]} (Dashboard)</span>
+                <ArrowRight size={14} />
+              </Link>
             </div>
-          ) : (
-            <form onSubmit={handleHeroEmailAuth} className="space-y-3">
-              <div className="flex flex-col sm:flex-row items-center p-1.5 bg-[#0B1528] rounded-3xl sm:rounded-full border border-white/10 shadow-2xl gap-2">
-                <div className="flex items-center gap-3 pl-4 pr-2 w-full sm:w-auto flex-1 py-2 sm:py-0">
-                  <Mail size={18} className="text-slate-400 shrink-0" />
-                  <input
-                    type="email"
-                    value={heroEmail}
-                    onChange={(e) => {
-                      setHeroEmail(e.target.value);
-                      if (heroError) setHeroError(null);
-                    }}
-                    placeholder="Enter your email address to start..."
-                    required
-                    className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none font-medium"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSubmittingHero}
-                  className="w-full sm:w-auto bg-[#FF6B4A] hover:bg-[#FA5A36] active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl sm:rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B4A]/25 transition-all cursor-pointer shrink-0 disabled:opacity-70"
-                >
-                  {isSubmittingHero ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Starting...
-                    </span>
-                  ) : (
-                    <>
-                      <span>Start Transformation</span>
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {heroError && (
-                <p className="text-xs font-semibold text-rose-400 text-center">
-                  {heroError}
-                </p>
-              )}
-
-              <div className="flex items-center justify-center gap-4 text-xs font-semibold text-slate-400 pt-1">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 size={13} className="text-emerald-400" /> Instant Email Access
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 size={13} className="text-emerald-400" /> Zero Password Hassle
-                </span>
-                <span>•</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById("sandbox");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="text-slate-300 hover:text-[#FF6B4A] underline font-bold cursor-pointer"
-                >
-                  Try Sandbox
-                </button>
-              </div>
-            </form>
           )}
+
+          <form onSubmit={handleHeroEmailAuth} className="space-y-3">
+            <div className="flex flex-col sm:flex-row items-center p-1.5 bg-[#0B1528] rounded-3xl sm:rounded-full border border-white/10 shadow-2xl gap-2">
+              <div className="flex items-center gap-3 pl-4 pr-2 w-full sm:w-auto flex-1 py-2 sm:py-0">
+                <Mail size={18} className="text-slate-400 shrink-0" />
+                <input
+                  type="email"
+                  value={heroEmail}
+                  onChange={(e) => {
+                    setHeroEmail(e.target.value);
+                    if (heroError) setHeroError(null);
+                  }}
+                  placeholder="Enter your email address to start..."
+                  required
+                  className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none font-medium"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmittingHero}
+                className="w-full sm:w-auto bg-[#FF6B4A] hover:bg-[#FA5A36] active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl sm:rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B4A]/25 transition-all cursor-pointer shrink-0 disabled:opacity-70"
+              >
+                {isSubmittingHero ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Starting...
+                  </span>
+                ) : (
+                  <>
+                    <span>Start Transformation</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+            </div>
+
+            {heroError && (
+              <p className="text-xs font-semibold text-rose-400 text-center">
+                {heroError}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-400 pt-1">
+              <Link to="/login" className="text-slate-300 hover:text-[#FF6B4A] underline font-bold">
+                Athlete Sign In
+              </Link>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 size={13} className="text-emerald-400" /> Instant Email Access
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 size={13} className="text-emerald-400" /> Zero Password Hassle
+              </span>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("sandbox");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="text-slate-300 hover:text-[#FF6B4A] underline font-bold cursor-pointer"
+              >
+                Try Sandbox
+              </button>
+            </div>
+          </form>
         </motion.div>
 
         {/* The 4 Core Metric Badges (Dark Bento Cards) */}

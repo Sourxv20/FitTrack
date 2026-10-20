@@ -45,6 +45,8 @@ export interface Exercise {
   videoUrl?: string | null;
   thumbnailUrl?: string | null;
   animationType?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WorkoutPlanExercise {
@@ -56,6 +58,8 @@ export interface WorkoutPlanExercise {
   targetReps: string;
   restSeconds: number;
   exercise: Exercise;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WorkoutPlan {
@@ -69,6 +73,8 @@ export interface WorkoutPlan {
   targetCalories: number;
   type: "Workout" | "Recovery" | "Rest";
   exercises: WorkoutPlanExercise[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WorkoutSet {

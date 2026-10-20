@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { defaultExercises, defaultWorkoutPlans } from "../data/defaultGymData";
 import {
   Exercise,
   WorkoutPlan,
@@ -16,33 +17,61 @@ import {
 
 export const exerciseService = {
   getExercises: async (params?: { category?: string; difficulty?: string; equipment?: string; search?: string }) => {
-    const query = new URLSearchParams();
-    if (params?.category) query.append("category", params.category);
-    if (params?.difficulty) query.append("difficulty", params.difficulty);
-    if (params?.equipment) query.append("equipment", params.equipment);
-    if (params?.search) query.append("search", params.search);
+    try {
+      const query = new URLSearchParams();
+      if (params?.category) query.append("category", params.category);
+      if (params?.difficulty) query.append("difficulty", params.difficulty);
+      if (params?.equipment) query.append("equipment", params.equipment);
+      if (params?.search) query.append("search", params.search);
 
-    const queryString = query.toString();
-    const endpoint = `/exercises${queryString ? `?${queryString}` : ""}`;
-    const res = await api.get<{ success: boolean; count: number; data: Exercise[] }>(endpoint);
-    return res.data;
+      const queryString = query.toString();
+      const endpoint = `/exercises${queryString ? `?${queryString}` : ""}`;
+      const res = await api.get<{ success: boolean; count: number; data: Exercise[] }>(endpoint);
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data;
+      }
+      return defaultExercises;
+    } catch {
+      return defaultExercises;
+    }
   },
 
   getExerciseById: async (id: string) => {
-    const res = await api.get<{ success: boolean; data: Exercise }>(`/exercises/${id}`);
-    return res.data;
+    try {
+      const res = await api.get<{ success: boolean; data: Exercise }>(`/exercises/${id}`);
+      if (res && res.data) return res.data;
+    } catch {
+      // Fallback
+    }
+    const found = defaultExercises.find((e) => e.id === id);
+    if (found) return found;
+    throw new Error("Exercise not found");
   }
 };
 
 export const workoutService = {
   getPlans: async () => {
-    const res = await api.get<{ success: boolean; data: WorkoutPlan[] }>("/workouts/plans");
-    return res.data;
+    try {
+      const res = await api.get<{ success: boolean; data: WorkoutPlan[] }>("/workouts/plans");
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data;
+      }
+      return defaultWorkoutPlans;
+    } catch {
+      return defaultWorkoutPlans;
+    }
   },
 
   getTodayPlan: async () => {
-    const res = await api.get<{ success: boolean; data: WorkoutPlan | null }>("/workouts/today");
-    return res.data;
+    try {
+      const res = await api.get<{ success: boolean; data: WorkoutPlan | null }>("/workouts/today");
+      if (res && res.data) return res.data;
+    } catch {
+      // Fallback
+    }
+    const daysMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const todayId = daysMap[new Date().getDay()];
+    return defaultWorkoutPlans.find((p) => p.id === todayId) || defaultWorkoutPlans[0];
   },
 
   saveSession: async (sessionData: {
@@ -116,9 +145,64 @@ export const progressService = {
 };
 
 export const dashboardService = {
-  getDashboard: async () => {
-    const res = await api.get<{ success: boolean; data: DashboardData }>("/dashboard");
-    return res.data;
+  getDashboard: async (): Promise<DashboardData> => {
+    try {
+      const res = await api.get<any>("/dashboard");
+      if (res && res.data) {
+        if (res.data.stats) return res.data as DashboardData;
+        if (res.data.data && res.data.data.stats) return res.data.data as DashboardData;
+      }
+    } catch {
+      // Backend not running (e.g. static Vercel deployment)
+    }
+
+    const daysMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const todayId = daysMap[new Date().getDay()];
+    const todayPlanRaw = defaultWorkoutPlans.find((p) => p.id === todayId) || defaultWorkoutPlans[0];
+
+    const fallbackData: DashboardData = {
+      greeting: "Welcome back, Athlete 👋",
+      user: {
+        id: "usr_athlete",
+        name: "Athlete",
+        email: "athlete@fittrack.com",
+        dailyCalorieTarget: 500,
+        fitnessGoal: "Build muscle & endurance",
+        runningGoal: "5K Run"
+      },
+      stats: {
+        todayCalories: 0,
+        dailyCalorieTarget: 500,
+        calorieProgressPercent: 0,
+        currentStreak: 1,
+        totalWorkouts: 0,
+        totalRunningDistance: 0
+      },
+      todayActivity: {
+        hasDoneWorkout: false,
+        hasDoneRun: false,
+        todayPlan: {
+          id: todayPlanRaw.id,
+          title: todayPlanRaw.title,
+          focus: todayPlanRaw.focus,
+          duration: todayPlanRaw.duration,
+          targetCalories: todayPlanRaw.targetCalories,
+          exercisesCount: todayPlanRaw.exercises.length
+        }
+      },
+      weeklyBreakdown: [
+        { day: "Mon", calories: 0, minutes: 0, distanceKm: 0, active: false },
+        { day: "Tue", calories: 0, minutes: 0, distanceKm: 0, active: false },
+        { day: "Wed", calories: 0, minutes: 0, distanceKm: 0, active: false },
+        { day: "Thu", calories: 0, minutes: 0, distanceKm: 0, active: false },
+        { day: "Fri", calories: 0, minutes: 0, distanceKm: 0, active: false },
+        { day: "Sat", calories: 0, minutes: 0, distanceKm: 0, active: false },
+        { day: "Sun", calories: 0, minutes: 0, distanceKm: 0, active: false }
+      ],
+      recentActivity: []
+    };
+
+    return fallbackData;
   }
 };
 

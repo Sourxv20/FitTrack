@@ -137,7 +137,7 @@ export const Gym: React.FC = () => {
       </div>
 
       {/* Weekly Day Split Selector */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 shadow-xs">
+      <div className="bg-[#0B1528] border border-white/10 rounded-3xl p-5 shadow-2xl">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3">
           WEEKLY TRAINING SCHEDULE
         </span>
@@ -153,22 +153,22 @@ export const Gym: React.FC = () => {
                 whileTap={{ scale: 0.96 }}
                 key={plan.id}
                 onClick={() => setSelectedDayId(plan.id)}
-                className={`relative flex flex-col items-start p-3 rounded-xl border text-left transition-colors cursor-pointer ${
+                className={`relative flex flex-col items-start p-3 rounded-2xl border text-left transition-colors cursor-pointer ${
                   isSelected
-                    ? "border-blue-600 text-white"
-                    : "bg-slate-50/70 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "border-[#FF6B4A] text-white"
+                    : "bg-white/5 border-white/10 hover:bg-white/10"
                 }`}
               >
                 {isSelected && (
                   <motion.div
                     layoutId="activeSplitIndicator"
-                    className="absolute inset-0 bg-blue-600 rounded-xl -z-0 shadow-md shadow-blue-600/30"
+                    className="absolute inset-0 bg-[#FF6B4A] rounded-2xl -z-0 shadow-lg shadow-[#FF6B4A]/30"
                     transition={{ type: "spring", stiffness: 350, damping: 28 }}
                   />
                 )}
 
                 <div className="relative z-10 flex items-center justify-between w-full mb-1">
-                  <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isSelected ? "text-blue-100" : "text-slate-400"}`}>
+                  <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isSelected ? "text-white" : "text-slate-400"}`}>
                     {plan.shortDay}
                   </span>
                   {isSelected && (
@@ -176,11 +176,11 @@ export const Gym: React.FC = () => {
                   )}
                 </div>
 
-                <h4 className={`relative z-10 text-xs font-bold truncate w-full ${isSelected ? "text-white" : "text-slate-800 dark:text-slate-100"}`}>
+                <h4 className={`relative z-10 text-xs font-bold truncate w-full ${isSelected ? "text-white" : "text-slate-100"}`}>
                   {plan.title}
                 </h4>
 
-                <span className={`relative z-10 text-[10px] mt-1 font-medium truncate w-full ${isSelected ? "text-blue-200" : isRest ? "text-slate-400" : "text-slate-500 dark:text-slate-400"}`}>
+                <span className={`relative z-10 text-[10px] mt-1 font-medium truncate w-full ${isSelected ? "text-white/80" : isRest ? "text-slate-400" : "text-slate-400"}`}>
                   {isRest ? "Active Rest" : `${plan.exercises.length} exercises`}
                 </span>
               </motion.button>
@@ -203,7 +203,7 @@ export const Gym: React.FC = () => {
             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10 max-w-2xl">
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-3 py-1 rounded-full bg-[#CCFF00]/15 text-[#CCFF00] border border-[#CCFF00]/30 text-[10px] font-black uppercase tracking-wider">
+                <span className="px-3 py-1 rounded-full bg-[#FF6B4A]/15 text-[#FF6B4A] border border-[#FF6B4A]/30 text-[10px] font-black uppercase tracking-wider">
                   {activePlan.dayOfWeek} Split
                 </span>
                 <span className="text-xs font-bold text-slate-300">
@@ -242,14 +242,14 @@ export const Gym: React.FC = () => {
 
                   <button
                     onClick={handleStartWorkout}
-                    className="ml-auto flex items-center gap-2 px-6 py-3 bg-[#CCFF00] text-black hover:bg-[#B5E600] font-black text-xs rounded-2xl shadow-lg shadow-[#CCFF00]/25 transition-all active:scale-95 cursor-pointer"
+                    className="ml-auto flex items-center gap-2 px-6 py-3 bg-[#FF6B4A] text-white hover:bg-[#FA5A36] font-black text-xs rounded-2xl shadow-lg shadow-[#FF6B4A]/25 transition-all active:scale-95 cursor-pointer"
                   >
-                    <Play size={14} className="fill-black text-black" />
+                    <Play size={14} className="fill-white text-white" />
                     <span>START SESSION NOW</span>
                   </button>
                 </div>
               ) : (
-                <div className="mt-4 p-3 bg-white/10 rounded-xl text-xs text-blue-100">
+                <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-2xl text-xs text-slate-300">
                   🌱 Active recovery day. Hydrate, perform gentle mobility stretches, or take a light recovery walk.
                 </div>
               )}
@@ -265,7 +265,7 @@ export const Gym: React.FC = () => {
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               EXERCISE LIBRARY
             </span>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+            <h3 className="text-lg font-bold text-white">
               Explore & Filter Movements ({filteredExercises.length})
             </h3>
           </div>
@@ -278,7 +278,7 @@ export const Gym: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search exercise, muscle, barbell..."
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none dark:text-white transition-all shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#0B1528] border border-white/10 rounded-2xl text-xs sm:text-sm focus:border-[#FF6B4A] focus:ring-1 focus:ring-[#FF6B4A] focus:outline-none text-white placeholder-slate-500 transition-all shadow-sm"
             />
           </div>
         </div>
@@ -297,13 +297,13 @@ export const Gym: React.FC = () => {
                 className={`relative px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                   isCatSelected
                     ? "text-white"
-                    : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {isCatSelected && (
                   <motion.div
                     layoutId="activeCategoryPill"
-                    className="absolute inset-0 bg-blue-600 rounded-xl -z-0 shadow-sm"
+                    className="absolute inset-0 bg-[#FF6B4A] rounded-xl -z-0 shadow-sm"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -319,10 +319,10 @@ export const Gym: React.FC = () => {
             <button
               key={diff}
               onClick={() => setSelectedDifficulty(diff)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 selectedDifficulty === diff
-                  ? "bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900"
-                  : "bg-white dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-100"
+                  ? "bg-slate-700 text-white"
+                  : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white"
               }`}
             >
               {diff}
@@ -332,10 +332,10 @@ export const Gym: React.FC = () => {
 
         {/* Exercises Grid */}
         {filteredExercises.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-            <Dumbbell size={36} className="mx-auto mb-3 opacity-40" />
-            <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">No exercises found</h4>
-            <p className="text-xs mt-1">Try clearing your filters or search terms.</p>
+          <div className="bg-[#0B1528] border border-white/10 rounded-3xl p-12 text-center text-slate-400 shadow-2xl">
+            <Dumbbell size={36} className="mx-auto mb-3 opacity-40 text-slate-500" />
+            <h4 className="text-sm font-bold text-white">No exercises found</h4>
+            <p className="text-xs mt-1 text-slate-400">Try clearing your filters or search terms.</p>
           </div>
         ) : (
           <motion.div
@@ -358,11 +358,11 @@ export const Gym: React.FC = () => {
                 key={ex.id}
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-blue-500/30 transition-all flex flex-col justify-between"
+                className="bg-[#0B1528] border border-white/10 rounded-3xl p-5 shadow-2xl hover:border-white/20 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-950/60 text-sky-400 border border-blue-800/60">
                       {ex.category}
                     </span>
                     <span className="text-[10px] font-semibold text-slate-400">
@@ -370,15 +370,15 @@ export const Gym: React.FC = () => {
                     </span>
                   </div>
 
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                  <h4 className="text-base font-bold text-white leading-snug">
                     {ex.name}
                   </h4>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">
                     {ex.description}
                   </p>
 
-                  <div className="flex items-center gap-3 text-xs font-medium text-slate-600 dark:text-slate-300 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                  <div className="flex items-center gap-3 text-xs font-medium text-slate-400 mt-3 pt-3 border-t border-white/10">
                     <span>{ex.sets} Sets</span>
                     <span>•</span>
                     <span>{ex.reps} Reps</span>
@@ -390,7 +390,7 @@ export const Gym: React.FC = () => {
                 <div className="flex items-center gap-2 mt-4 pt-2">
                   <button
                     onClick={() => setInspectExercise(ex)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 border border-white/10 transition-colors cursor-pointer"
                   >
                     <Info size={14} />
                     View Technique
@@ -398,7 +398,7 @@ export const Gym: React.FC = () => {
 
                   <button
                     onClick={() => handleStartSingleExercise(ex)}
-                    className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm"
+                    className="p-2 rounded-xl bg-[#FF6B4A] hover:bg-[#FA5A36] text-white transition-colors shadow-sm cursor-pointer"
                     title="Start this exercise in Workout Mode"
                   >
                     <Play size={14} className="fill-white" />
