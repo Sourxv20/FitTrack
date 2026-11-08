@@ -335,12 +335,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onClose })
 
   return (
     <>
-      {/* Desktop Floating Glassmorphism Side Navigation Bar (Matches Instagram Reel) */}
-      <aside className="hidden lg:flex fixed left-4 top-4 bottom-4 w-64 rounded-3xl bg-[#0A0F1E]/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_1px_0_rgba(255,255,255,0.08)_inset] flex-col justify-between z-30 select-none overflow-hidden">
+      {/* Desktop Floating Spatial Dock Navigation Bar */}
+      <aside className="hidden lg:flex fixed left-4 top-4 bottom-4 w-64 rounded-3xl spatial-dock flex-col justify-between z-30 select-none overflow-hidden transition-all duration-300">
         {sidebarContent}
       </aside>
 
-      {/* Mobile Glassmorphism Drawer (Slide-in) */}
+      {/* Mobile Spatial Drawer (Slide-in) */}
       <AnimatePresence>
         {mobileOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex">
@@ -350,16 +350,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onClose })
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/60 backdrop-blur-md"
             />
 
-            {/* Slide-in Glass Sidebar */}
+            {/* Slide-in Spatial Sidebar */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              className="relative w-72 max-w-[85vw] h-full bg-[#0A0F1E]/95 backdrop-blur-2xl border-r border-white/10 shadow-2xl z-10 flex flex-col justify-between overflow-hidden"
+              className="relative w-72 max-w-[85vw] h-full spatial-dock border-r border-white/10 shadow-2xl z-10 flex flex-col justify-between overflow-hidden"
             >
               {sidebarContent}
             </motion.aside>

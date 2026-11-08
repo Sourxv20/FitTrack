@@ -15,10 +15,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-[#080D1A] text-white flex flex-col font-['Inter'] antialiased relative selection:bg-purple-500 selection:text-white">
-      {/* Background Ambient Glows (matching Glassy Dashboard V24) */}
-      <div className="fixed -top-40 -left-40 w-96 h-96 bg-purple-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
-      <div className="fixed top-1/3 right-0 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-[160px] pointer-events-none z-0" />
-      <div className="fixed -bottom-40 left-1/3 w-96 h-96 bg-blue-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
+      {/* VisionOS Spatial Environment Ambient Glows */}
+      <div className="fixed -top-40 -left-40 w-[500px] h-[500px] bg-purple-600/15 spatial-glow-orb pointer-events-none z-0 animate-float-slow" />
+      <div className="fixed top-1/3 -right-40 w-[600px] h-[600px] bg-fuchsia-600/10 spatial-glow-orb pointer-events-none z-0 animate-float-reverse" />
+      <div className="fixed -bottom-40 left-1/4 w-[550px] h-[550px] bg-cyan-600/12 spatial-glow-orb pointer-events-none z-0 animate-float-slow" />
 
       {/* Floating Desktop & Slide-in Mobile Glassmorphism Sidebar */}
       <Sidebar

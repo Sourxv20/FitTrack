@@ -1018,41 +1018,41 @@ export const Running: React.FC = () => {
         {/* 3 Core Running Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {/* Distance */}
-          <motion.div whileHover={{ y: -3 }} className="bg-slate-50 dark:bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 text-center transition-all hover:border-blue-500/30">
+          <motion.div whileHover={{ y: -3 }} className="spatial-glass p-4 sm:p-5 rounded-2xl text-center transition-all hover:border-cyan-500/40">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Distance
             </span>
-            <div className="text-3xl sm:text-4xl font-extrabold text-blue-600 dark:text-blue-400 font-mono">
+            <div className="text-3xl sm:text-4xl font-extrabold text-cyan-400 font-mono">
               {distanceKm.toFixed(2)}
             </div>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Kilometers</span>
+            <span className="text-xs font-bold text-slate-400">Kilometers</span>
           </motion.div>
 
           {/* Pace */}
-          <motion.div whileHover={{ y: -3 }} className="bg-slate-50 dark:bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 text-center transition-all hover:border-slate-400/30">
+          <motion.div whileHover={{ y: -3 }} className="spatial-glass p-4 sm:p-5 rounded-2xl text-center transition-all hover:border-purple-500/40">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Pace
             </span>
-            <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white font-mono">
+            <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono">
               {currentPace.replace(" /km", "")}
             </div>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">/ km</span>
+            <span className="text-xs font-bold text-slate-400">/ km</span>
           </motion.div>
 
           {/* Calories */}
-          <motion.div whileHover={{ y: -3 }} className="bg-slate-50 dark:bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 text-center transition-all hover:border-amber-500/30">
+          <motion.div whileHover={{ y: -3 }} className="spatial-glass p-4 sm:p-5 rounded-2xl text-center transition-all hover:border-[#FF6B4A]/40">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Estimated Burn
             </span>
-            <div className="text-3xl sm:text-4xl font-extrabold text-amber-500 font-mono">
+            <div className="text-3xl sm:text-4xl font-extrabold text-[#FF6B4A] font-mono">
               {currentCalories}
             </div>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Calories</span>
+            <span className="text-xs font-bold text-slate-400">Calories</span>
           </motion.div>
         </div>
 
         {/* Live Leaflet Map Container */}
-        <div className="relative w-full h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 mb-8 shadow-2xl bg-[#080D1A]">
+        <div className="relative w-full h-[380px] sm:h-[460px] rounded-3xl overflow-hidden mb-8 shadow-2xl bg-[#080D1A] spatial-glass">
           <div
             ref={mapContainerRef}
             className="w-full h-full min-h-[380px] sm:min-h-[460px] z-0"

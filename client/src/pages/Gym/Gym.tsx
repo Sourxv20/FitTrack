@@ -198,7 +198,7 @@ export const Gym: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.99 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="bg-gradient-to-br from-slate-900 via-[#0B1528] to-[#080D1A] text-white rounded-3xl p-7 shadow-2xl border border-white/10 relative overflow-hidden"
+            className="spatial-glass text-white rounded-3xl p-7 shadow-2xl relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10 max-w-2xl">
@@ -358,7 +358,7 @@ export const Gym: React.FC = () => {
                 key={ex.id}
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="bg-[#0B1528] border border-white/10 rounded-3xl p-5 shadow-2xl hover:border-white/20 transition-all flex flex-col justify-between"
+                className="spatial-glass rounded-3xl p-5 shadow-2xl hover:border-purple-500/30 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
