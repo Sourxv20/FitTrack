@@ -117,11 +117,14 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenMobileSidebar }) => {
 
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-52 bg-[#0B1528] border border-white/10 rounded-2xl shadow-2xl py-2 z-50 text-white backdrop-blur-xl">
-              <div className="px-4 py-2 border-b border-white/10">
+              <div className="px-4 py-2.5 border-b border-white/10">
                 <p className="text-xs font-bold text-white truncate">
                   {user?.name}
                 </p>
-                <p className="text-[11px] text-slate-400 truncate">
+                <p className="text-[11px] text-[#FF6B4A] font-mono font-bold truncate">
+                  @{user?.username || user?.name?.toLowerCase().replace(/\s+/g, "_") || "athlete"}
+                </p>
+                <p className="text-[10px] text-slate-400 truncate mt-0.5">
                   {user?.email}
                 </p>
               </div>

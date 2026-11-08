@@ -248,8 +248,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onClose })
               <h4 className="text-xs font-bold text-slate-200 truncate group-hover:text-white transition-colors">
                 {user?.name || "Athlete"}
               </h4>
-              <p className="text-[10px] font-semibold text-slate-400 truncate flex items-center gap-1">
-                <span>{user?.profile?.fitnessGoal || "Elite Runner"}</span>
+              <p className="text-[10px] font-semibold text-slate-400 truncate flex items-center gap-1.5">
+                <span className="text-[#FF6B4A] font-mono font-bold">
+                  @{user?.username || user?.name?.toLowerCase().replace(/\s+/g, "_") || "athlete"}
+                </span>
+                <span>•</span>
+                <span>{user?.profile?.fitnessGoal || "Elite"}</span>
               </p>
             </div>
           </NavLink>

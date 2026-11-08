@@ -335,9 +335,26 @@ export const profileService = {
     return res.data;
   },
 
-  updateProfile: async (data: Partial<Profile> & { name?: string }) => {
-    const res = await api.put<{ success: boolean; message: string; data: any }>("/profile", data);
-    return res.data;
+  updateProfile: async (data: Partial<Profile> & { name?: string; username?: string }) => {
+    try {
+      const res = await api.put<{ success: boolean; message: string; data: any }>("/profile", data);
+      return res.data;
+    } catch (err: any) {
+      // Local fallback for standalone mode
+      const saved = localStorage.getItem("fittrack_user");
+      if (saved) {
+        const user = JSON.parse(saved);
+        if (data.name) user.name = data.name.trim();
+        if (data.username) {
+          const cleanU = data.username.trim().replace(/^@/, "").toLowerCase();
+          user.username = cleanU;
+        }
+        user.profile = { ...(user.profile || {}), ...data };
+        localStorage.setItem("fittrack_user", JSON.stringify(user));
+        return user;
+      }
+      throw err;
+    }
   },
 
   exportDataUrl: (format: "json" | "csv" | "gpx" = "json") => {

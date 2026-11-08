@@ -8,6 +8,7 @@ import { Logo } from "../../components/Logo";
 
 export const Register: React.FC = () => {
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,20 +25,26 @@ export const Register: React.FC = () => {
     e.preventDefault();
     setError(null);
 
+    const cleanUser = username.trim().replace(/^@/, "").toLowerCase();
+    if (!cleanUser || cleanUser.length < 3) {
+      setError("Username must be at least 3 characters.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError("Password must be at least 6 characters for security.");
       return;
     }
 
     setLoading(true);
 
     try {
-      await register(name, email, password, confirmPassword);
+      await register(name, cleanUser, email, password, confirmPassword);
       showToast("Account created successfully! Welcome to FitTrack.", "success");
       navigate("/dashboard");
     } catch (err: any) {
@@ -127,6 +134,33 @@ export const Register: React.FC = () => {
                   className="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-white/10 rounded-2xl text-sm focus:border-[#FF6B4A] focus:ring-1 focus:ring-[#FF6B4A] focus:outline-none text-white placeholder-slate-500 transition-all font-medium"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>Athlete Username</span>
+                {username && (
+                  <span className="text-[11px] text-[#FF6B4A] lowercase font-mono">
+                    @{username.replace(/^@/, "")}
+                  </span>
+                )}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-mono font-bold text-sm">
+                  @
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, ""))}
+                  placeholder="iron_lifter"
+                  className="w-full pl-8 pr-4 py-3 bg-slate-900/80 border border-white/10 rounded-2xl text-sm focus:border-[#FF6B4A] focus:ring-1 focus:ring-[#FF6B4A] focus:outline-none text-white placeholder-slate-500 transition-all font-mono"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Your unique handle used across the app and for signing in.
+              </p>
             </div>
 
             <div>

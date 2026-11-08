@@ -7,10 +7,10 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   loginWithEmailOnly: (email: string) => Promise<void>;
   demoLogin: () => Promise<void>;
-  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  register: (name: string, username: string, email: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (updatedUser: Partial<User>) => void;
   refreshUser: () => Promise<void>;
@@ -49,8 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const data = await authService.login(email, password);
+  const login = async (identifier: string, password: string) => {
+    const data = await authService.login(identifier, password);
     setUser(data.user);
     setToken(data.accessToken);
   };
@@ -65,8 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await login("sourav@fittrack.com", "Password123!");
   };
 
-  const register = async (name: string, email: string, password: string, confirmPassword: string) => {
-    const data = await authService.register(name, email, password, confirmPassword);
+  const register = async (
+    name: string,
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => {
+    const data = await authService.register(name, username, email, password, confirmPassword);
     setUser(data.user);
     setToken(data.accessToken);
   };

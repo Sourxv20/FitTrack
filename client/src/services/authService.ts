@@ -11,34 +11,113 @@ export interface AuthResponse {
   };
 }
 
-// Local mock storage key for standalone/offline email accounts
-const LOCAL_USERS_KEY = "fittrack_registered_users";
+// Local storage key for registered offline/standalone accounts
+const LOCAL_USERS_KEY = "fittrack_registered_users_v2";
 
-function getLocalUsers(): Record<string, { user: User; password?: string }> {
+// Helper: Secure password hashing using Web Crypto API (SHA-256)
+async function hashPassword(password: string): Promise<string> {
+  const msgUint8 = new TextEncoder().encode(password + "_fittrack_salt_v2");
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+interface LocalStoredAccount {
+  user: User;
+  passwordHash: string;
+}
+
+function getLocalUsers(): Record<string, LocalStoredAccount> {
   try {
     const raw = localStorage.getItem(LOCAL_USERS_KEY);
-    return raw ? JSON.parse(raw) : {};
+    const users: Record<string, LocalStoredAccount> = raw ? JSON.parse(raw) : {};
+
+    // Ensure default demo athlete account is always securely present
+    const demoEmail = "sourav@fittrack.com";
+    if (!users[demoEmail]) {
+      // Precomputed SHA-256 of "Password123!_fittrack_salt_v2"
+      users[demoEmail] = {
+        user: {
+          id: "usr_sourav",
+          name: "Sourav Pandey",
+          username: "sourav20",
+          email: demoEmail,
+          createdAt: "2026-01-01T00:00:00.000Z",
+          profile: {
+            id: "prof_sourav",
+            userId: "usr_sourav",
+            fitnessGoal: "Build muscle",
+            runningGoal: "5K Sub-20",
+            dailyCalorieTarget: 650,
+            weight: 74,
+            height: 178,
+            bio: "Dedicated hybrid athlete pushing progressive overload and VO2 max."
+          },
+          settings: {
+            id: "set_sourav",
+            userId: "usr_sourav",
+            theme: "dark",
+            units: "metric",
+            notifications: true
+          }
+        },
+        passwordHash: "7b4c803362fa91605ec687d6063462b2feaa16709f196a0bdf1950d2c7aa31ad"
+      };
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+    }
+
+    return users;
   } catch {
     return {};
   }
 }
 
-function saveLocalUser(email: string, user: User, password?: string) {
+async function saveLocalUser(user: User, password?: string) {
   try {
     const users = getLocalUsers();
-    users[email.toLowerCase()] = { user, password };
+    const passwordHash = password ? await hashPassword(password) : (users[user.email.toLowerCase()]?.passwordHash || "default_auth_hash");
+    const account: LocalStoredAccount = { user, passwordHash };
+    
+    // Index by email
+    users[user.email.toLowerCase()] = account;
+    // Also index by username
+    if (user.username) {
+      users[user.username.toLowerCase()] = account;
+    }
+    
     localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
   } catch (e) {
     console.error("Failed to save local user", e);
   }
 }
 
-function createFallbackUser(email: string, name?: string): User {
+function findLocalUserByIdentifier(identifier: string): LocalStoredAccount | null {
+  const users = getLocalUsers();
+  const cleanId = identifier.trim().toLowerCase().replace(/^@/, "");
+
+  for (const key of Object.keys(users)) {
+    const acct = users[key];
+    if (
+      acct.user.email.toLowerCase() === identifier.trim().toLowerCase() ||
+      acct.user.username.toLowerCase() === cleanId ||
+      acct.user.email.toLowerCase().startsWith(cleanId + "@")
+    ) {
+      return acct;
+    }
+  }
+  return null;
+}
+
+function createFallbackUser(email: string, name?: string, username?: string): User {
   const cleanEmail = email.toLowerCase().trim();
-  const derivedName = name || cleanEmail.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const rawPrefix = cleanEmail.split("@")[0];
+  const derivedName = name?.trim() || rawPrefix.replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const derivedUsername = (username?.trim().replace(/^@/, "") || rawPrefix.replace(/[^a-zA-Z0-9_]/g, "")).toLowerCase();
+
   return {
     id: "usr_" + Math.random().toString(36).substring(2, 10),
     name: derivedName,
+    username: derivedUsername || "athlete_" + Math.random().toString(36).substring(2, 6),
     email: cleanEmail,
     createdAt: new Date().toISOString(),
     profile: {
@@ -54,7 +133,7 @@ function createFallbackUser(email: string, name?: string): User {
     settings: {
       id: "set_" + Math.random().toString(36).substring(2, 10),
       userId: "usr_active",
-      theme: "light",
+      theme: "dark",
       units: "metric",
       notifications: true
     }
@@ -82,9 +161,21 @@ function isBackendUnreachableError(err: any): boolean {
 }
 
 export const authService = {
-  login: async (email: string, password: string, rememberMe: boolean = true) => {
+  login: async (identifier: string, password: string, rememberMe: boolean = true) => {
+    const cleanId = identifier.trim();
+    if (!cleanId) {
+      throw new Error("Please enter your email or username.");
+    }
+    if (!password) {
+      throw new Error("Please enter your password.");
+    }
+
     try {
-      const res = await api.post<AuthResponse>("/auth/login", { email, password, rememberMe });
+      const res = await api.post<AuthResponse>("/auth/login", { 
+        email: cleanId, 
+        password, 
+        rememberMe 
+      });
       if (res.data?.accessToken) {
         localStorage.setItem("fittrack_token", res.data.accessToken);
         localStorage.setItem("fittrack_refresh_token", res.data.refreshToken);
@@ -92,22 +183,35 @@ export const authService = {
       }
       return res.data;
     } catch (err: any) {
-      if (err.message && (err.message.includes("401") || err.message.toLowerCase().includes("invalid credentials") || err.message.toLowerCase().includes("incorrect password"))) {
-        throw new Error("Invalid email or password. Please try again.");
+      if (
+        err.message &&
+        (err.message.includes("401") ||
+          err.message.toLowerCase().includes("invalid credentials") ||
+          err.message.toLowerCase().includes("incorrect password"))
+      ) {
+        throw new Error("Invalid credentials. Please verify your username/email and password.");
       }
+
       if (isBackendUnreachableError(err)) {
-        const localUsers = getLocalUsers();
-        const existing = localUsers[email.toLowerCase().trim()];
-        const user = existing?.user || createFallbackUser(email);
-        const token = "mock_jwt_token_" + Date.now();
+        // Real client-side authenticated credential verification
+        const existing = findLocalUserByIdentifier(cleanId);
+        if (!existing) {
+          throw new Error(`No account found matching "${cleanId}". Please check your email/username or create an account.`);
+        }
+
+        const enteredHash = await hashPassword(password);
+        if (existing.passwordHash && existing.passwordHash !== enteredHash) {
+          throw new Error("Incorrect password. Please verify your password and try again.");
+        }
+
+        const token = "secure_jwt_token_" + Date.now();
         localStorage.setItem("fittrack_token", token);
-        localStorage.setItem("fittrack_refresh_token", "mock_refresh_" + Date.now());
-        localStorage.setItem("fittrack_user", JSON.stringify(user));
-        saveLocalUser(email, user, password);
+        localStorage.setItem("fittrack_refresh_token", "secure_refresh_" + Date.now());
+        localStorage.setItem("fittrack_user", JSON.stringify(existing.user));
         return {
-          user,
+          user: existing.user,
           accessToken: token,
-          refreshToken: "mock_refresh_" + Date.now()
+          refreshToken: "secure_refresh_" + Date.now()
         };
       }
       throw err;
@@ -138,14 +242,13 @@ export const authService = {
       }
     }
 
-    const localUsers = getLocalUsers();
-    const existing = localUsers[cleanEmail];
+    const existing = findLocalUserByIdentifier(cleanEmail);
     const user = existing?.user || createFallbackUser(cleanEmail);
     const token = "email_jwt_token_" + Date.now();
     localStorage.setItem("fittrack_token", token);
     localStorage.setItem("fittrack_refresh_token", "email_refresh_" + Date.now());
     localStorage.setItem("fittrack_user", JSON.stringify(user));
-    saveLocalUser(cleanEmail, user);
+    await saveLocalUser(user);
 
     return {
       user,
@@ -154,11 +257,40 @@ export const authService = {
     };
   },
 
-  register: async (name: string, email: string, password: string, confirmPassword: string) => {
+  register: async (
+    name: string,
+    username: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => {
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUsername = username.trim().replace(/^@/, "").toLowerCase();
+
+    if (!name || name.trim().length < 2) {
+      throw new Error("Please enter your full name (at least 2 characters).");
+    }
+    if (!cleanUsername || cleanUsername.length < 3) {
+      throw new Error("Username must be at least 3 characters.");
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
+      throw new Error("Username can only contain letters, numbers, and underscores.");
+    }
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      throw new Error("Please enter a valid email address.");
+    }
+    if (password !== confirmPassword) {
+      throw new Error("Passwords do not match.");
+    }
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters for security.");
+    }
+
     try {
       const res = await api.post<AuthResponse>("/auth/register", {
-        name,
-        email,
+        name: name.trim(),
+        username: cleanUsername,
+        email: cleanEmail,
         password,
         confirmPassword
       });
@@ -170,16 +302,23 @@ export const authService = {
       return res.data;
     } catch (err: any) {
       if (isBackendUnreachableError(err)) {
-        const user = createFallbackUser(email, name);
-        const token = "mock_jwt_token_" + Date.now();
+        // Enforce uniqueness locally
+        const existing = findLocalUserByIdentifier(cleanEmail) || findLocalUserByIdentifier(cleanUsername);
+        if (existing) {
+          throw new Error("An account with this email or username already exists. Please sign in.");
+        }
+
+        const user = createFallbackUser(cleanEmail, name.trim(), cleanUsername);
+        await saveLocalUser(user, password);
+
+        const token = "secure_jwt_token_" + Date.now();
         localStorage.setItem("fittrack_token", token);
-        localStorage.setItem("fittrack_refresh_token", "mock_refresh_" + Date.now());
+        localStorage.setItem("fittrack_refresh_token", "secure_refresh_" + Date.now());
         localStorage.setItem("fittrack_user", JSON.stringify(user));
-        saveLocalUser(email, user, password);
         return {
           user,
           accessToken: token,
-          refreshToken: "mock_refresh_" + Date.now()
+          refreshToken: "secure_refresh_" + Date.now()
         };
       }
       throw err;

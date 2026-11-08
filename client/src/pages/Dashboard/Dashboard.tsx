@@ -158,8 +158,11 @@ export const Dashboard: React.FC = () => {
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white font-['Plus_Jakarta_Sans'] mt-0.5">
-              {data?.greeting || `Welcome, ${user?.name?.split(" ")[0]} 👋`}
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white font-['Plus_Jakarta_Sans'] mt-0.5 flex flex-wrap items-center gap-2">
+              <span>{data?.greeting || `Welcome, ${user?.name || "Athlete"}`}</span>
+              <span className="text-xs font-mono font-bold text-[#FF6B4A] bg-[#FF6B4A]/15 border border-[#FF6B4A]/30 px-2.5 py-0.5 rounded-full">
+                @{user?.username || user?.name?.toLowerCase().replace(/\s+/g, "_") || "athlete"}
+              </span>
             </h1>
             <p className="text-xs text-slate-400 font-medium">
               Train Smarter. Run Stronger.

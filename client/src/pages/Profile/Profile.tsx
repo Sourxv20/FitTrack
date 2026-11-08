@@ -32,6 +32,7 @@ export const Profile: React.FC = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [height, setHeight] = useState<number | "">("");
   const [weight, setWeight] = useState<number | "">("");
   const [fitnessGoal, setFitnessGoal] = useState<string>("Build muscle");
@@ -46,6 +47,7 @@ export const Profile: React.FC = () => {
   useEffect(() => {
     if (user) {
       setName(user.name || "");
+      setUsername(user.username || user.name?.toLowerCase().replace(/\s+/g, "_") || "");
       setHeight(user.profile?.height || 175);
       setWeight(user.profile?.weight || 74);
       setFitnessGoal(user.profile?.fitnessGoal || "Build muscle");
@@ -96,8 +98,10 @@ export const Profile: React.FC = () => {
     e.preventDefault();
     setSaving(true);
     try {
+      const cleanU = username.trim().replace(/^@/, "").toLowerCase();
       const updated = await profileService.updateProfile({
         name,
+        username: cleanU,
         height: height === "" ? null : Number(height),
         weight: weight === "" ? null : Number(weight),
         fitnessGoal,
@@ -107,7 +111,7 @@ export const Profile: React.FC = () => {
       });
 
       updateUser(updated);
-      showToast("Profile updated successfully!", "success");
+      showToast("Profile and username updated successfully!", "success");
     } catch (err: any) {
       showToast(err.message || "Failed to update profile.", "error");
     } finally {
@@ -173,9 +177,15 @@ export const Profile: React.FC = () => {
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center sm:justify-start gap-1.5 pt-1">
-            <Mail size={14} />
-            <span>{user?.email}</span>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+            <span className="text-[#FF6B4A] font-mono font-bold bg-[#FF6B4A]/10 px-2.5 py-0.5 rounded-full border border-[#FF6B4A]/20">
+              @{user?.username || user?.name?.toLowerCase().replace(/\s+/g, "_") || "athlete"}
+            </span>
+            <span className="hidden sm:inline text-slate-400">•</span>
+            <span className="flex items-center gap-1">
+              <Mail size={14} />
+              <span>{user?.email}</span>
+            </span>
           </p>
 
           <p className="text-xs text-slate-400 flex items-center justify-center sm:justify-start gap-1.5 pt-0.5">
@@ -300,8 +310,29 @@ export const Profile: React.FC = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none dark:text-white"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#FF6B4A] focus:outline-none dark:text-white"
               />
+            </div>
+
+            {/* Athlete Username */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Athlete Username</span>
+                <span className="text-[11px] font-mono text-[#FF6B4A] font-bold">
+                  @{username ? username.replace(/^@/, "") : "handle"}
+                </span>
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-mono text-xs">@</span>
+                <input
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, ""))}
+                  placeholder="iron_lifter"
+                  className="w-full pl-8 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-[#FF6B4A] focus:outline-none dark:text-white font-mono"
+                />
+              </div>
             </div>
 
             {/* Daily Calorie Target */}

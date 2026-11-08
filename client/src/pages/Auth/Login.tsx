@@ -7,7 +7,7 @@ import { useToast } from "../../context/ToastContext";
 import { Logo } from "../../components/Logo";
 
 export const Login: React.FC = () => {
-  const [authMode, setAuthMode] = useState<"instant_email" | "password">("instant_email");
+  const [authMode, setAuthMode] = useState<"password" | "instant_email">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -139,20 +139,6 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setAuthMode("instant_email");
-                setError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all cursor-pointer ${
-                authMode === "instant_email"
-                  ? "bg-[#FF6B4A] text-white shadow-md shadow-[#FF6B4A]/25"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Email Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => {
                 setAuthMode("password");
                 setError(null);
               }}
@@ -162,67 +148,41 @@ export const Login: React.FC = () => {
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              With Password
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("instant_email");
+                setError(null);
+              }}
+              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all cursor-pointer ${
+                authMode === "instant_email"
+                  ? "bg-[#FF6B4A] text-white shadow-md shadow-[#FF6B4A]/25"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Quick Email
             </button>
           </div>
 
-          {/* OPTION 1: INSTANT EMAIL AUTHENTICATION */}
-          {authMode === "instant_email" ? (
-            <form onSubmit={handleEmailOnlySubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Your Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                    <Mail size={17} />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="athlete@fittrack.com"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-white/10 rounded-2xl text-sm focus:border-[#FF6B4A] focus:ring-1 focus:ring-[#FF6B4A] focus:outline-none text-white placeholder-slate-500 transition-all font-medium"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1.5 leading-tight">
-                  Enter your email to immediately access your athlete dashboard.
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-[#FF6B4A] hover:bg-[#FA5A36] active:scale-[0.99] text-white font-black text-sm rounded-2xl shadow-lg shadow-[#FF6B4A]/25 transition-all cursor-pointer disabled:opacity-50"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Continue with Email</span>
-                    <ArrowRight size={17} />
-                  </>
-                )}
-              </button>
-            </form>
-          ) : (
-            /* OPTION 2: TRADITIONAL PASSWORD AUTHENTICATION */
+          {/* OPTION 1: TRADITIONAL PASSWORD AUTHENTICATION (DEFAULT SECURE) */}
+          {authMode === "password" ? (
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Email address
+                  Email or Username
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <Mail size={17} />
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="athlete@fittrack.com"
+                    placeholder="athlete@fittrack.com or @sourav20"
                     className="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-white/10 rounded-2xl text-sm focus:border-[#FF6B4A] focus:ring-1 focus:ring-[#FF6B4A] focus:outline-none text-white placeholder-slate-500 transition-all font-medium"
                   />
                 </div>
@@ -285,7 +245,47 @@ export const Login: React.FC = () => {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Sign In</span>
+                    <span>Sign In Safely</span>
+                    <ArrowRight size={17} />
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            /* OPTION 2: QUICK EMAIL AUTHENTICATION */
+            <form onSubmit={handleEmailOnlySubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Your Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Mail size={17} />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="athlete@fittrack.com"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-white/10 rounded-2xl text-sm focus:border-[#FF6B4A] focus:ring-1 focus:ring-[#FF6B4A] focus:outline-none text-white placeholder-slate-500 transition-all font-medium"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1.5 leading-tight">
+                  Instant email access without entering password.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-[#FF6B4A] hover:bg-[#FA5A36] active:scale-[0.99] text-white font-black text-sm rounded-2xl shadow-lg shadow-[#FF6B4A]/25 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span>Continue with Email</span>
                     <ArrowRight size={17} />
                   </>
                 )}
