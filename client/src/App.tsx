@@ -39,20 +39,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <Layout>{children}</Layout>;
 };
 
-const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return null;
-  }
-
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return <>{children}</>;
-};
-
 function App() {
   return (
     <ThemeProvider>
@@ -60,31 +46,10 @@ function App() {
         <AuthProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Routes */}
-              <Route
-                path="/login"
-                element={
-                  <PublicOnlyRoute>
-                    <Login />
-                  </PublicOnlyRoute>
-                }
-              />
-              <Route
-                path="/register"
-                element={
-                  <PublicOnlyRoute>
-                    <Register />
-                  </PublicOnlyRoute>
-                }
-              />
-              <Route
-                path="/forgot-password"
-                element={
-                  <PublicOnlyRoute>
-                    <ForgotPassword />
-                  </PublicOnlyRoute>
-                }
-              />
+              {/* Public Routes - Accessible at all times */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Protected App Routes */}
               <Route
