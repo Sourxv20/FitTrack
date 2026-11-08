@@ -5,6 +5,8 @@ import { ArrowRight, Lock, Mail, User, AlertCircle, Eye, EyeOff, CheckCircle2 } 
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { Logo } from "../../components/Logo";
+import { SpatialCard } from "../../components/SpatialCard";
+import { ThreeSceneBackground } from "../../components/ThreeSceneBackground";
 
 export const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -56,11 +58,36 @@ export const Register: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-[#080D1A] text-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-['Inter'] overflow-hidden selection:bg-[#FF6B4A] selection:text-white">
-      {/* Ambient background blur orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/12 rounded-full blur-[140px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FF6B4A]/10 rounded-full blur-[150px]" />
-        <div className="absolute top-3/4 left-1/3 w-80 h-80 bg-cyan-600/10 rounded-full blur-[140px]" />
+      {/* 1. 3D WebGL Three.js Particle and Wireframe Scene */}
+      <ThreeSceneBackground />
+
+      {/* 2. Cinematic Athletic Background Photo with Multi-Stop Dark Vignette */}
+      <div
+        className="fixed inset-0 pointer-events-none bg-cover bg-center filter brightness-[0.22] contrast-[1.25] saturate-[1.2] -z-10"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=2070&auto=format&fit=crop')"
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none -z-10"
+        style={{
+          background: "radial-gradient(circle at 50% 40%, rgba(8, 13, 26, 0.35) 0%, rgba(8, 13, 26, 0.85) 60%, #080D1A 100%)"
+        }}
+      />
+
+      {/* 3D Floating Telemetry Badges (Desktop) */}
+      <div className="hidden lg:block fixed left-10 top-24 pointer-events-none animate-float-slow z-10">
+        <div className="spatial-pill px-4 py-2 flex items-center gap-2.5 text-xs font-bold text-white shadow-2xl">
+          <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_8px_purple]" />
+          <span>⚡ Personalized Athlete Handle</span>
+        </div>
+      </div>
+
+      <div className="hidden lg:block fixed right-10 top-28 pointer-events-none animate-float-reverse z-10">
+        <div className="spatial-pill px-4 py-2 flex items-center gap-2.5 text-xs font-bold text-white shadow-2xl">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_emerald]" />
+          <span>🔒 SHA-256 Protected Vault</span>
+        </div>
       </div>
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md text-center">
@@ -77,11 +104,12 @@ export const Register: React.FC = () => {
       </div>
 
       <div className="relative z-10 mt-7 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#0B1528] py-8 px-6 sm:px-10 shadow-2xl border border-white/10 rounded-[32px] backdrop-blur-xl"
-        >
+        <SpatialCard glowColor="purple" depth="md">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="spatial-glass py-8 px-6 sm:px-10 shadow-2xl rounded-[32px]"
+          >
           {user && (
             <div className="mb-6 p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
               <div>
@@ -259,6 +287,7 @@ export const Register: React.FC = () => {
             </Link>
           </div>
         </motion.div>
+        </SpatialCard>
 
         <p className="mt-8 text-center text-xs text-slate-500 font-medium">
           FitTrack Athletic Systems • Developed by <span className="text-slate-300 font-bold">Sourav Pandey</span>

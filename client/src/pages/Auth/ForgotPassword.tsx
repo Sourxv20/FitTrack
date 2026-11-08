@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import { Logo } from "../../components/Logo";
+import { SpatialCard } from "../../components/SpatialCard";
+import { ThreeSceneBackground } from "../../components/ThreeSceneBackground";
 
 export const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -15,11 +17,22 @@ export const ForgotPassword: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-[#080D1A] text-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-['Inter'] overflow-hidden selection:bg-[#FF6B4A] selection:text-white">
-      {/* Ambient background blur orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/12 rounded-full blur-[140px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FF6B4A]/10 rounded-full blur-[150px]" />
-      </div>
+      {/* 1. 3D WebGL Three.js Particle and Wireframe Scene */}
+      <ThreeSceneBackground />
+
+      {/* 2. Cinematic Athletic Background Photo with Multi-Stop Dark Vignette */}
+      <div
+        className="fixed inset-0 pointer-events-none bg-cover bg-center filter brightness-[0.22] contrast-[1.25] saturate-[1.2] -z-10"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2093&auto=format&fit=crop')"
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none -z-10"
+        style={{
+          background: "radial-gradient(circle at 50% 40%, rgba(8, 13, 26, 0.35) 0%, rgba(8, 13, 26, 0.85) 60%, #080D1A 100%)"
+        }}
+      />
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link to="/" className="inline-flex flex-col items-center mb-3 group">
@@ -34,11 +47,12 @@ export const ForgotPassword: React.FC = () => {
       </div>
 
       <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#0B1528] py-8 px-6 sm:px-10 shadow-2xl border border-white/10 rounded-[32px] backdrop-blur-xl"
-        >
+        <SpatialCard glowColor="cyan" depth="md">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="spatial-glass py-8 px-6 sm:px-10 shadow-2xl rounded-[32px]"
+          >
           {sent ? (
             <div className="text-center py-4 space-y-4">
               <div className="w-12 h-12 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
@@ -94,6 +108,7 @@ export const ForgotPassword: React.FC = () => {
             </form>
           )}
         </motion.div>
+        </SpatialCard>
       </div>
     </div>
   );
