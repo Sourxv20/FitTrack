@@ -15,7 +15,7 @@ export const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { login, loginWithEmailOnly, demoLogin } = useAuth();
+  const { user, login, loginWithEmailOnly, demoLogin, logout } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -100,6 +100,33 @@ export const Login: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-[#0B1528] py-8 px-6 sm:px-10 shadow-2xl border border-white/10 rounded-[32px] backdrop-blur-xl"
         >
+          {user && (
+            <div className="mb-6 p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Signed in as</span>
+                <span className="font-bold text-white">{user.name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/dashboard"
+                  className="px-3 py-1.5 rounded-full bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-[11px] uppercase transition-all"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logout();
+                    showToast("Signed out successfully", "info");
+                  }}
+                  className="px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-slate-300 hover:text-rose-400 text-[11px] font-bold transition-all cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="mb-6 p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-start gap-3 text-rose-300 text-xs">
               <AlertCircle size={18} className="shrink-0 mt-0.5" />

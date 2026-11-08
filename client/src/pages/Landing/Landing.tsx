@@ -21,7 +21,8 @@ import {
   Plus,
   Minus,
   Award,
-  Mail
+  Mail,
+  LogIn
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Logo } from "../../components/Logo";
@@ -350,29 +351,29 @@ export const Landing: React.FC = () => {
 
           {/* Contextual Auth CTAs */}
           <div className="flex items-center gap-3">
-            <Link
+            <MagneticButton
               to="/login"
-              className="text-xs font-bold text-slate-300 hover:text-white px-3 py-2 rounded-full transition-colors"
+              className="bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#FF6B4A]/25"
             >
-              Athlete Sign In
-            </Link>
+              <LogIn size={14} />
+              Login
+            </MagneticButton>
 
             {user ? (
-              <MagneticButton
-                onClick={() => navigate("/dashboard")}
-                className="bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-[#FF6B4A]/25"
+              <Link
+                to="/dashboard"
+                className="text-xs font-bold text-slate-300 hover:text-white px-3.5 py-2 rounded-full transition-colors flex items-center gap-1.5 border border-white/10 hover:border-white/20 bg-white/5"
               >
-                Dashboard
-                <ArrowRight size={14} />
-              </MagneticButton>
+                <span>Dashboard</span>
+                <ArrowRight size={13} />
+              </Link>
             ) : (
-              <MagneticButton
+              <Link
                 to="/register"
-                className="bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-extrabold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#FF6B4A]/25"
+                className="text-xs font-bold text-slate-300 hover:text-white px-3 py-2 rounded-full transition-colors"
               >
-                <Sparkles size={14} className="stroke-[2.5]" />
-                Join FitTrack
-              </MagneticButton>
+                Sign Up
+              </Link>
             )}
           </div>
         </div>
@@ -474,17 +475,26 @@ export const Landing: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.25 }}
           className="w-full max-w-xl mb-12"
         >
-          {user && (
-            <div className="flex items-center justify-center gap-3 mb-4">
+          {/* Direct Login & Dashboard Link Pill */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#FF6B4A]/15 hover:bg-[#FF6B4A]/25 border border-[#FF6B4A]/40 text-[#FF6B4A] rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#FF6B4A]/10"
+            >
+              <LogIn size={14} />
+              <span>Login</span>
+              <ArrowRight size={14} />
+            </Link>
+            {user && (
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#FF6B4A]/15 hover:bg-[#FF6B4A]/25 border border-[#FF6B4A]/40 text-[#FF6B4A] rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#FF6B4A]/10"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all"
               >
-                <span>Continue as {user.name?.split(" ")[0]} (Dashboard)</span>
+                <span>Go to Dashboard</span>
                 <ArrowRight size={14} />
               </Link>
-            </div>
-          )}
+            )}
+          </div>
 
           <form onSubmit={handleHeroEmailAuth} className="space-y-3">
             <div className="flex flex-col sm:flex-row items-center p-1.5 spatial-glass rounded-3xl sm:rounded-full shadow-2xl gap-2">
@@ -1357,19 +1367,39 @@ export const Landing: React.FC = () => {
             Join FitTrack today.
           </p>
 
-          {user ? (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <MagneticButton
+              to="/login"
+              strength={0.3}
+              className="w-full sm:w-auto bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-black text-sm px-9 py-4 rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-[#FF6B4A]/25"
+            >
+              <LogIn size={17} />
+              Login to FitTrack
+              <ArrowRight size={17} className="stroke-[2.5]" />
+            </MagneticButton>
+
+            {user ? (
               <MagneticButton
                 to="/dashboard"
                 strength={0.3}
-                className="w-full sm:w-auto bg-[#FF6B4A] hover:bg-[#FA5A36] text-white font-black text-sm px-9 py-4 rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-[#FF6B4A]/25"
+                className="w-full sm:w-auto bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-sm px-8 py-4 rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all"
               >
                 Go to Dashboard
-                <ArrowRight size={17} className="stroke-[2.5]" />
+                <ArrowRight size={17} />
               </MagneticButton>
-            </div>
-          ) : (
-            <form onSubmit={handleFooterEmailAuth} className="max-w-md mx-auto space-y-3">
+            ) : (
+              <MagneticButton
+                to="/register"
+                strength={0.3}
+                className="w-full sm:w-auto bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-sm px-8 py-4 rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all"
+              >
+                Create Account
+                <ArrowRight size={17} />
+              </MagneticButton>
+            )}
+          </div>
+
+          <form onSubmit={handleFooterEmailAuth} className="max-w-md mx-auto space-y-3">
               <div className="flex flex-col sm:flex-row items-center p-1.5 bg-[#0B1528] rounded-3xl sm:rounded-full border border-white/10 shadow-2xl gap-2">
                 <div className="flex items-center gap-3 pl-4 pr-2 w-full sm:w-auto flex-1 py-2 sm:py-0">
                   <Mail size={18} className="text-slate-400 shrink-0" />
@@ -1410,7 +1440,6 @@ export const Landing: React.FC = () => {
                 </p>
               )}
             </form>
-          )}
         </div>
 
         {/* Clean Minimalist Athletic Footer */}
