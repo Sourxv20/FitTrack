@@ -30,6 +30,7 @@ import { StatsCard } from "../../components/StatsCard";
 import { CardSkeleton, Skeleton } from "../../components/Skeleton";
 import { formatDuration } from "../../utils/formatters";
 import { AnimatedNumber } from "../../components/AnimatedCounter";
+import { SpatialCard } from "../../components/SpatialCard";
 
 export const Progress: React.FC = () => {
   const [summary, setSummary] = useState<ProgressSummary | null>(null);
@@ -133,99 +134,117 @@ export const Progress: React.FC = () => {
 
       {/* 6 Key Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        <motion.div whileHover={{ y: -3 }} className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-500/30 transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Workouts</span>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">
-            <AnimatedNumber value={s.totalWorkouts} />
+        <SpatialCard glowColor="purple" depth="sm">
+          <div className="spatial-glass p-4 rounded-3xl">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Workouts</span>
+            <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">
+              <AnimatedNumber value={s.totalWorkouts} />
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">Sessions</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">Sessions</span>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-500/30 transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Runs</span>
-          <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-            <AnimatedNumber value={s.totalRuns} />
+        <SpatialCard glowColor="emerald" depth="sm">
+          <div className="spatial-glass p-4 rounded-3xl">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Runs</span>
+            <div className="text-2xl font-extrabold text-emerald-400 font-mono">
+              <AnimatedNumber value={s.totalRuns} />
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">GPS tracked</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">GPS tracked</span>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-500/30 transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Distance</span>
-          <div className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 font-mono">
-            <AnimatedNumber value={s.totalDistanceKm} decimals={2} />
+        <SpatialCard glowColor="cyan" depth="sm">
+          <div className="spatial-glass p-4 rounded-3xl">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Distance</span>
+            <div className="text-2xl font-extrabold text-sky-400 font-mono">
+              <AnimatedNumber value={s.totalDistanceKm} decimals={2} />
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">km covered</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">km covered</span>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-amber-500/30 transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Burn</span>
-          <div className="text-2xl font-extrabold text-amber-500 font-mono">
-            <AnimatedNumber value={s.totalCalories} />
+        <SpatialCard glowColor="coral" depth="sm">
+          <div className="spatial-glass p-4 rounded-3xl">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Burn</span>
+            <div className="text-2xl font-extrabold text-[#FF6B4A] font-mono">
+              <AnimatedNumber value={s.totalCalories} />
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">kcal burned</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">kcal burned</span>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-400/30 transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Active Time</span>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">
-            <AnimatedNumber value={s.totalActiveMinutes} />
+        <SpatialCard glowColor="cyan" depth="sm">
+          <div className="spatial-glass p-4 rounded-3xl">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Active Time</span>
+            <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">
+              <AnimatedNumber value={s.totalActiveMinutes} />
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">minutes</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">minutes</span>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-purple-500/30 transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Streak</span>
-          <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 font-mono">
-            <AnimatedNumber value={s.currentStreak} />
+        <SpatialCard glowColor="purple" depth="sm">
+          <div className="spatial-glass p-4 rounded-3xl">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Streak</span>
+            <div className="text-2xl font-extrabold text-purple-400 font-mono">
+              <AnimatedNumber value={s.currentStreak} />
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">days active</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-medium">days active</span>
-        </motion.div>
+        </SpatialCard>
       </div>
 
       {/* Yo-Yo Endurance Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <motion.div whileHover={{ y: -3 }} className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:border-emerald-500/30 transition-all flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <Trophy size={22} />
-          </div>
-          <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Best Yo-Yo Level</span>
-            <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">
-              {s.yoyo?.bestLevel || "—"}
+        <SpatialCard glowColor="emerald" depth="md">
+          <div className="spatial-glass p-5 rounded-3xl flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+              <Trophy size={24} />
             </div>
-            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Yo-Yo IR1 Protocol</span>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Best Yo-Yo Level</span>
+              <div className="text-xl font-extrabold text-white mt-0.5 font-['Plus_Jakarta_Sans']">
+                {s.yoyo?.bestLevel || "—"}
+              </div>
+              <span className="text-[11px] text-emerald-400 font-semibold">Yo-Yo IR1 Protocol</span>
+            </div>
           </div>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:border-blue-500/30 transition-all flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-            <Zap size={22} />
-          </div>
-          <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Best Yo-Yo Distance</span>
-            <div className="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-0.5">
-              {s.yoyo?.bestDistance ? `${s.yoyo.bestDistance} m` : "—"}
+        <SpatialCard glowColor="cyan" depth="md">
+          <div className="spatial-glass p-5 rounded-3xl flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 border border-sky-500/30">
+              <Zap size={24} />
             </div>
-            <span className="text-[11px] text-slate-500 font-semibold">
-              {s.yoyo?.bestDistance ? `${(s.yoyo.bestDistance / 1000).toFixed(2)} km covered` : "No tests yet"}
-            </span>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Best Yo-Yo Distance</span>
+              <div className="text-xl font-extrabold text-sky-400 mt-0.5 font-['Plus_Jakarta_Sans']">
+                {s.yoyo?.bestDistance ? `${s.yoyo.bestDistance} m` : "—"}
+              </div>
+              <span className="text-[11px] text-slate-400 font-semibold">
+                {s.yoyo?.bestDistance ? `${(s.yoyo.bestDistance / 1000).toFixed(2)} km covered` : "No tests yet"}
+              </span>
+            </div>
           </div>
-        </motion.div>
+        </SpatialCard>
 
-        <motion.div whileHover={{ y: -3 }} className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:border-amber-500/30 transition-all flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center shrink-0">
-            <Clock size={22} />
-          </div>
-          <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Latest Yo-Yo Test</span>
-            <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">
-              {s.yoyo?.latestTest ? (s.yoyo.latestTest.level || `Level ${s.yoyo.latestTest.finalLevel}.${s.yoyo.latestTest.finalShuttle}`) : "—"}
+        <SpatialCard glowColor="coral" depth="md">
+          <div className="spatial-glass p-5 rounded-3xl flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+              <Clock size={24} />
             </div>
-            <span className="text-[11px] text-slate-500 font-semibold">
-              {s.yoyo?.latestTest ? `${s.yoyo.latestTest.distance} m (${s.yoyo.latestTest.finalSpeed.toFixed(1)} km/h)` : "Take test in Running"}
-            </span>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Latest Yo-Yo Test</span>
+              <div className="text-xl font-extrabold text-white mt-0.5 font-['Plus_Jakarta_Sans']">
+                {s.yoyo?.latestTest ? (s.yoyo.latestTest.level || `Level ${s.yoyo.latestTest.finalLevel}.${s.yoyo.latestTest.finalShuttle}`) : "—"}
+              </div>
+              <span className="text-[11px] text-slate-400 font-semibold">
+                {s.yoyo?.latestTest ? `${s.yoyo.latestTest.distance} m (${s.yoyo.latestTest.finalSpeed.toFixed(1)} km/h)` : "Take test in Running"}
+              </span>
+            </div>
           </div>
-        </motion.div>
+        </SpatialCard>
       </div>
 
       {/* Tabs Selector: Charts vs Workouts History vs Runs History vs Yo-Yo Tests */}
@@ -275,7 +294,7 @@ export const Progress: React.FC = () => {
           {activeTab === "charts" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chart 1: Calories Burned Progression */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
+          <div className="spatial-glass p-6 rounded-3xl shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">TREND</span>
@@ -312,13 +331,13 @@ export const Progress: React.FC = () => {
           </div>
 
           {/* Chart 2: Running Distance Progression */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
+          <div className="spatial-glass p-6 rounded-3xl shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">DISTANCE</span>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">Running Distance (km)</h3>
               </div>
-              <span className="text-xs font-bold text-blue-600 font-mono">km</span>
+              <span className="text-xs font-bold text-sky-400 font-mono">km</span>
             </div>
 
             <div className="h-64 w-full">
@@ -343,13 +362,13 @@ export const Progress: React.FC = () => {
           </div>
 
           {/* Chart 3: Active Workout Duration */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-2">
+          <div className="spatial-glass p-6 rounded-3xl shadow-xl lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">TIME</span>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">Active Gym Workout Time (minutes)</h3>
               </div>
-              <span className="text-xs font-bold text-emerald-600 font-mono">mins</span>
+              <span className="text-xs font-bold text-emerald-400 font-mono">mins</span>
             </div>
 
             <div className="h-64 w-full">
@@ -380,7 +399,7 @@ export const Progress: React.FC = () => {
           </div>
 
           {/* Chart 4: Yo-Yo Intermittent Recovery Performance Over Time */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-2">
+          <div className="spatial-glass p-6 rounded-3xl shadow-xl lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -442,27 +461,27 @@ export const Progress: React.FC = () => {
           {activeTab === "workouts" && (
             <div className="space-y-3">
               {workoutHistory.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-                  <Dumbbell size={36} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No gym workouts recorded yet</p>
-                  <p className="text-xs mt-1">Start a workout in the Gym tab to record your training history.</p>
+                <div className="spatial-glass rounded-3xl p-12 text-center text-slate-400">
+                  <Dumbbell size={36} className="mx-auto mb-2 opacity-40 text-[#FF6B4A]" />
+                  <p className="text-sm font-bold text-white">No gym workouts recorded yet</p>
+                  <p className="text-xs mt-1 text-slate-400">Start a workout in the Gym tab to record your training history.</p>
                 </div>
               ) : (
                 workoutHistory.map((w) => (
                   <motion.div
                     whileHover={{ y: -3 }}
                     key={w.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-blue-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="spatial-glass rounded-3xl p-5 shadow-lg hover:border-blue-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                         <Dumbbell size={24} />
                       </div>
                       <div>
-                        <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                        <h4 className="text-base font-bold text-white leading-snug">
                           {w.title}
                         </h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-400 mt-0.5">
                           {new Date(w.startedAt).toLocaleString("en-US", {
                             weekday: "short",
                             month: "short",
@@ -474,24 +493,24 @@ export const Progress: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center gap-6 text-xs text-slate-300">
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Duration</span>
-                        <span className="font-bold font-mono text-sm text-slate-900 dark:text-white">
+                        <span className="font-bold font-mono text-sm text-white">
                           {Math.round(w.durationSeconds / 60)} min
                         </span>
                       </div>
 
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Calories</span>
-                        <span className="font-bold font-mono text-sm text-amber-500">
+                        <span className="font-bold font-mono text-sm text-[#FF6B4A]">
                           {w.caloriesBurned} kcal
                         </span>
                       </div>
 
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Volume</span>
-                        <span className="font-bold text-sm text-blue-600 dark:text-blue-400">
+                        <span className="font-bold text-sm text-blue-400">
                           {w.sets?.length || 0} sets
                         </span>
                       </div>
@@ -506,27 +525,27 @@ export const Progress: React.FC = () => {
           {activeTab === "runs" && (
             <div className="space-y-3">
               {runHistory.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-                  <Footprints size={36} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No runs recorded yet</p>
-                  <p className="text-xs mt-1">Start an outdoor GPS run to track route and pace.</p>
+                <div className="spatial-glass rounded-3xl p-12 text-center text-slate-400">
+                  <Footprints size={36} className="mx-auto mb-2 opacity-40 text-emerald-400" />
+                  <p className="text-sm font-bold text-white">No runs recorded yet</p>
+                  <p className="text-xs mt-1 text-slate-400">Start an outdoor GPS run to track route and pace.</p>
                 </div>
               ) : (
                 runHistory.map((r) => (
                   <motion.div
                     whileHover={{ y: -3 }}
                     key={r.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="spatial-glass rounded-3xl p-5 shadow-lg hover:border-emerald-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
                         <Footprints size={24} />
                       </div>
                       <div>
-                        <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                        <h4 className="text-base font-bold text-white leading-snug">
                           {r.distanceKm.toFixed(2)} km Run
                         </h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-400 mt-0.5">
                           {new Date(r.startedAt).toLocaleString("en-US", {
                             weekday: "short",
                             month: "short",
@@ -538,24 +557,24 @@ export const Progress: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center gap-6 text-xs text-slate-300">
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Duration</span>
-                        <span className="font-bold font-mono text-sm text-slate-900 dark:text-white">
+                        <span className="font-bold font-mono text-sm text-white">
                           {formatDuration(r.durationSeconds)}
                         </span>
                       </div>
 
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Avg Pace</span>
-                        <span className="font-bold font-mono text-sm text-slate-900 dark:text-white">
+                        <span className="font-bold font-mono text-sm text-sky-400">
                           {r.avgPace}
                         </span>
                       </div>
 
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Burn</span>
-                        <span className="font-bold font-mono text-sm text-amber-500">
+                        <span className="font-bold font-mono text-sm text-[#FF6B4A]">
                           {r.caloriesBurned} kcal
                         </span>
                       </div>
@@ -570,32 +589,32 @@ export const Progress: React.FC = () => {
           {activeTab === "yoyo" && (
             <div className="space-y-3">
               {!s.yoyo?.history || s.yoyo.history.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-                  <Trophy size={36} className="mx-auto mb-2 opacity-40 text-emerald-500" />
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Yo-Yo tests recorded yet</p>
-                  <p className="text-xs mt-1">Start a 20m shuttle test in the Running section to record your endurance benchmark.</p>
+                <div className="spatial-glass rounded-3xl p-12 text-center text-slate-400">
+                  <Trophy size={36} className="mx-auto mb-2 opacity-40 text-emerald-400" />
+                  <p className="text-sm font-bold text-white">No Yo-Yo tests recorded yet</p>
+                  <p className="text-xs mt-1 text-slate-400">Start a 20m shuttle test in the Running section to record your endurance benchmark.</p>
                 </div>
               ) : (
                 s.yoyo.history.map((t) => (
                   <motion.div
                     whileHover={{ y: -3 }}
                     key={t.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:border-emerald-500/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="spatial-glass rounded-3xl p-5 shadow-lg hover:border-emerald-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
                         <Trophy size={24} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                          <h4 className="text-base font-bold text-white leading-snug">
                             {t.level || `Level ${t.finalLevel}.${t.finalShuttle}`}
                           </h4>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 text-[10px] font-extrabold uppercase">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold uppercase">
                             {t.testType}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-400 mt-0.5">
                           {new Date(t.completedAt).toLocaleString("en-US", {
                             weekday: "short",
                             month: "short",
@@ -607,17 +626,17 @@ export const Progress: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center gap-6 text-xs text-slate-300">
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Distance</span>
-                        <span className="font-bold font-mono text-sm text-slate-900 dark:text-white">
+                        <span className="font-bold font-mono text-sm text-white">
                           {t.distance} m
                         </span>
                       </div>
 
                       <div>
                         <span className="text-[10px] font-bold text-slate-400 uppercase block">Final Speed</span>
-                        <span className="font-bold font-mono text-sm text-emerald-600 dark:text-emerald-400">
+                        <span className="font-bold font-mono text-sm text-emerald-400">
                           {t.finalSpeed.toFixed(1)} km/h
                         </span>
                       </div>

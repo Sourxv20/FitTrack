@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Logo } from "../../components/Logo";
+import { SpatialCard } from "../../components/SpatialCard";
+import { ThreeSceneBackground } from "../../components/ThreeSceneBackground";
 
 // =======================================================
 // 1. MAGNETIC BUTTON HELPER
@@ -297,11 +299,14 @@ export const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#080D1A] text-white selection:bg-[#FF6B4A] selection:text-white overflow-x-hidden font-['Inter'] relative">
 
+      {/* Interactive Three.js 3D WebGL Particle & Holographic Canvas */}
+      <ThreeSceneBackground />
+
       {/* Ambient Radial Soft Atmospheric Glows (Athletic Midnight Theme) */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[20%] w-[650px] h-[650px] bg-blue-600/12 rounded-full blur-[160px]" />
-        <div className="absolute top-[35%] right-[-5%] w-[550px] h-[550px] bg-[#FF6B4A]/10 rounded-full blur-[170px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[700px] h-[700px] bg-cyan-600/10 rounded-full blur-[180px]" />
+        <div className="absolute top-[-10%] left-[20%] w-[650px] h-[650px] bg-purple-600/15 rounded-full blur-[160px] animate-float-slow" />
+        <div className="absolute top-[35%] right-[-5%] w-[550px] h-[550px] bg-[#FF6B4A]/12 rounded-full blur-[170px] animate-float-reverse" />
+        <div className="absolute bottom-[10%] left-[-10%] w-[700px] h-[700px] bg-cyan-600/12 rounded-full blur-[180px] animate-float-slow" />
       </div>
 
       {/* =======================================================
@@ -374,16 +379,58 @@ export const Landing: React.FC = () => {
       </header>
 
       {/* =======================================================
-          HERO SECTION: ATHLETIC MIDNIGHT THEME
+          HERO SECTION: 3D ATHLETIC CINEMATIC
          ======================================================= */}
-      <section className="relative z-10 pt-14 pb-16 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <section className="relative z-10 pt-14 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center overflow-hidden">
+        {/* Cinematic Section Background Picture */}
+        <div
+          className="absolute inset-0 -z-10 bg-cover bg-center filter brightness-[0.25] contrast-[1.25] saturate-[1.3] pointer-events-none rounded-[40px] opacity-75"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=2074&auto=format&fit=crop')"
+          }}
+        />
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none rounded-[40px]"
+          style={{
+            background: "radial-gradient(circle at 50% 35%, rgba(8, 13, 26, 0.25) 0%, rgba(8, 13, 26, 0.88) 65%, #080D1A 100%)"
+          }}
+        />
+
+        {/* 3D Floating Telemetry Orbits (Desktop) */}
+        <div className="hidden lg:block absolute left-8 top-28 pointer-events-none animate-float-slow">
+          <div className="spatial-pill px-4 py-2 flex items-center gap-2.5 text-xs font-bold text-white shadow-2xl">
+            <span className="w-2 h-2 rounded-full bg-[#FF6B4A] shadow-[0_0_8px_#FF6B4A]"></span>
+            <span>+2.5 kg Dynamic Step Overload</span>
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute right-8 top-36 pointer-events-none animate-float-reverse">
+          <div className="spatial-pill px-4 py-2 flex items-center gap-2.5 text-xs font-bold text-white shadow-2xl">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_cyan]"></span>
+            <span>🛰️ Zero-Watermark GPS Polylines</span>
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute left-12 bottom-36 pointer-events-none animate-float-reverse">
+          <div className="spatial-pill px-4 py-2 flex items-center gap-2.5 text-xs font-bold text-white shadow-2xl">
+            <span className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_8px_purple]"></span>
+            <span>⚡ Bangsbo Yo-Yo IR1 Protocol</span>
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute right-12 bottom-40 pointer-events-none animate-float-slow">
+          <div className="spatial-pill px-4 py-2 flex items-center gap-2.5 text-xs font-bold text-white shadow-2xl">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_emerald]"></span>
+            <span>📊 14,800 kg Weekly Tonnage</span>
+          </div>
+        </div>
 
         {/* Anti-Diet & Mission Chip */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-xs mb-8"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-xs mb-8 spatial-pill"
         >
           <span className="w-2 h-2 rounded-full bg-[#FF6B4A] animate-pulse" />
           <span className="text-[11px] font-black uppercase tracking-wider text-slate-300">
@@ -392,13 +439,13 @@ export const Landing: React.FC = () => {
         </motion.div>
 
         {/* Main Title - Pure White & Gradient Coral/Sky */}
-        <div className="max-w-5xl mb-6">
+        <div className="max-w-5xl mb-6 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black font-['Plus_Jakarta_Sans'] tracking-tight leading-[0.95] uppercase text-white">
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black font-['Plus_Jakarta_Sans'] tracking-tight leading-[0.95] uppercase text-white drop-shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
               TRAIN SMARTER.
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B4A] via-[#FF8566] to-sky-400">
@@ -413,7 +460,7 @@ export const Landing: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="max-w-2xl text-slate-400 text-base sm:text-lg font-normal leading-relaxed mb-10"
+          className="max-w-2xl text-slate-300 text-base sm:text-lg font-normal leading-relaxed mb-10 drop-shadow-md"
         >
           We eliminated calorie counting, food logging, and social feeds. FitTrack is engineered
           exclusively for serious lifters, runners, and athletes who want calibrated progressive
@@ -440,7 +487,7 @@ export const Landing: React.FC = () => {
           )}
 
           <form onSubmit={handleHeroEmailAuth} className="space-y-3">
-            <div className="flex flex-col sm:flex-row items-center p-1.5 bg-[#0B1528] rounded-3xl sm:rounded-full border border-white/10 shadow-2xl gap-2">
+            <div className="flex flex-col sm:flex-row items-center p-1.5 spatial-glass rounded-3xl sm:rounded-full shadow-2xl gap-2">
               <div className="flex items-center gap-3 pl-4 pr-2 w-full sm:w-auto flex-1 py-2 sm:py-0">
                 <Mail size={18} className="text-slate-400 shrink-0" />
                 <input
@@ -458,7 +505,7 @@ export const Landing: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmittingHero}
-                className="w-full sm:w-auto bg-[#FF6B4A] hover:bg-[#FA5A36] active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl sm:rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B4A]/25 transition-all cursor-pointer shrink-0 disabled:opacity-70"
+                className="w-full sm:w-auto bg-gradient-to-r from-[#FF6B4A] to-[#FA5A36] hover:brightness-110 active:scale-95 text-white font-black text-xs sm:text-sm px-6 py-3.5 rounded-2xl sm:rounded-full uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#FF6B4A]/30 transition-all cursor-pointer shrink-0 disabled:opacity-70"
               >
                 {isSubmittingHero ? (
                   <span className="flex items-center gap-2">
@@ -507,47 +554,55 @@ export const Landing: React.FC = () => {
           </form>
         </motion.div>
 
-        {/* The 4 Core Metric Badges (Dark Bento Cards) */}
+        {/* The 4 Core Metric Badges (3D Spatial Cards) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl pt-4">
-          <div className="p-5 rounded-3xl bg-[#0B1528] border border-white/10 shadow-lg text-left hover:border-white/20 transition-all">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#FF6B4A] block mb-1">
-              PILLAR 01
-            </span>
-            <div className="text-sm font-extrabold text-white">Progressive Overload</div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              +<AnimatedCounter value={2.5} decimals={1} suffix="kg" /> dynamic step
-            </p>
-          </div>
+          <SpatialCard glowColor="coral" depth="md">
+            <div className="p-5 rounded-3xl spatial-glass text-left">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#FF6B4A] block mb-1">
+                PILLAR 01
+              </span>
+              <div className="text-sm font-extrabold text-white">Progressive Overload</div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                +<AnimatedCounter value={2.5} decimals={1} suffix="kg" /> dynamic step
+              </p>
+            </div>
+          </SpatialCard>
 
-          <div className="p-5 rounded-3xl bg-[#0B1528] border border-white/10 shadow-lg text-left hover:border-white/20 transition-all">
-            <span className="text-[10px] font-black uppercase tracking-wider text-sky-400 block mb-1">
-              PILLAR 02
-            </span>
-            <div className="text-sm font-extrabold text-white">Real Satellite GPS</div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              <AnimatedCounter value={99.4} decimals={1} suffix="%" /> route fidelity
-            </p>
-          </div>
+          <SpatialCard glowColor="cyan" depth="md">
+            <div className="p-5 rounded-3xl spatial-glass text-left">
+              <span className="text-[10px] font-black uppercase tracking-wider text-sky-400 block mb-1">
+                PILLAR 02
+              </span>
+              <div className="text-sm font-extrabold text-white">Real Satellite GPS</div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                <AnimatedCounter value={99.4} decimals={1} suffix="%" /> route fidelity
+              </p>
+            </div>
+          </SpatialCard>
 
-          <div className="p-5 rounded-3xl bg-[#0B1528] border border-white/10 shadow-lg text-left hover:border-white/20 transition-all">
-            <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 block mb-1">
-              PILLAR 02 (TEST)
-            </span>
-            <div className="text-sm font-extrabold text-white">Yo-Yo IR1 Protocol</div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              <AnimatedCounter value={20} suffix="m" /> intermittent shuttle
-            </p>
-          </div>
+          <SpatialCard glowColor="purple" depth="md">
+            <div className="p-5 rounded-3xl spatial-glass text-left">
+              <span className="text-[10px] font-black uppercase tracking-wider text-purple-400 block mb-1">
+                PILLAR 02 (TEST)
+              </span>
+              <div className="text-sm font-extrabold text-white">Yo-Yo IR1 Protocol</div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                <AnimatedCounter value={20} suffix="m" /> intermittent shuttle
+              </p>
+            </div>
+          </SpatialCard>
 
-          <div className="p-5 rounded-3xl bg-[#0B1528] border border-white/10 shadow-lg text-left hover:border-white/20 transition-all">
-            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block mb-1">
-              PILLAR 03
-            </span>
-            <div className="text-sm font-extrabold text-white">Tonnage Analytics</div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              <AnimatedCounter value={14800} suffix=" kg" /> weekly volume
-            </p>
-          </div>
+          <SpatialCard glowColor="emerald" depth="md">
+            <div className="p-5 rounded-3xl spatial-glass text-left">
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block mb-1">
+                PILLAR 03
+              </span>
+              <div className="text-sm font-extrabold text-white">Tonnage Analytics</div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                <AnimatedCounter value={14800} suffix=" kg" /> weekly volume
+              </p>
+            </div>
+          </SpatialCard>
         </div>
       </section>
 
@@ -739,115 +794,148 @@ export const Landing: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Card 1: Gym Mastery */}
-          <div className="h-full p-8 rounded-[36px] bg-[#0B1528] border border-white/10 shadow-2xl flex flex-col justify-between text-left hover:border-white/20 transition-all">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-[#FF6B4A]/15 border border-[#FF6B4A]/30 text-[#FF6B4A] flex items-center justify-center mb-6 shadow-sm">
-                <Dumbbell size={24} />
+          <SpatialCard glowColor="coral" depth="md" className="h-full">
+            <div className="h-full p-8 rounded-[36px] spatial-glass relative overflow-hidden flex flex-col justify-between text-left group">
+              {/* Thematic Section Photo */}
+              <div
+                className="absolute inset-0 bg-cover bg-center filter brightness-[0.25] contrast-[1.2] saturate-[1.3] pointer-events-none group-hover:scale-105 transition-transform duration-700"
+                style={{
+                  backgroundImage: "url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=2070&auto=format&fit=crop')"
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080D1A] via-[#080D1A]/80 to-transparent pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-[#FF6B4A]/20 border border-[#FF6B4A]/30 text-[#FF6B4A] flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(255,107,74,0.3)]">
+                  <Dumbbell size={24} />
+                </div>
+
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#FF6B4A]">
+                  PILLAR 01
+                </span>
+                <h3 className="text-2xl font-black text-white mt-1 mb-3">Gym Strength & Splits</h3>
+                <p className="text-slate-300 text-xs leading-relaxed mb-6">
+                  Log your sets, reps, and weights with instant progressive overload calculation. Precision rest timer ensures optimal ATP recovery between sets.
+                </p>
+
+                <div className="space-y-2.5 mb-6">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-[#FF6B4A]" />
+                    <span>Push, Pull, Legs & Upper/Lower splits</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-[#FF6B4A]" />
+                    <span>Automated rest interval stopwatch</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-[#FF6B4A]" />
+                    <span>3D exercise animations & anatomy guide</span>
+                  </div>
+                </div>
               </div>
 
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#FF6B4A]">
-                PILLAR 01
-              </span>
-              <h3 className="text-2xl font-black text-white mt-1 mb-3">Gym Strength & Splits</h3>
-              <p className="text-slate-400 text-xs leading-relaxed mb-6">
-                Log your sets, reps, and weights with instant progressive overload calculation. Precision rest timer ensures optimal ATP recovery between sets.
-              </p>
-
-              <div className="space-y-2.5 mb-6">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-[#FF6B4A]" />
-                  <span>Push, Pull, Legs & Upper/Lower splits</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-[#FF6B4A]" />
-                  <span>Automated rest interval stopwatch</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-[#FF6B4A]" />
-                  <span>3D exercise animations & anatomy guide</span>
-                </div>
+              <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FF6B4A]">
+                <span>Explore Gym System</span>
+                <ChevronRight size={16} />
               </div>
             </div>
-
-            <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FF6B4A]">
-              <span>Explore Gym System</span>
-              <ChevronRight size={16} />
-            </div>
-          </div>
+          </SpatialCard>
 
           {/* Card 2: Road Running & Yo-Yo IR1 */}
-          <div className="h-full p-8 rounded-[36px] bg-[#0B1528] border border-white/10 shadow-2xl flex flex-col justify-between text-left hover:border-white/20 transition-all">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center mb-6 shadow-sm">
-                <Footprints size={24} />
+          <SpatialCard glowColor="cyan" depth="md" className="h-full">
+            <div className="h-full p-8 rounded-[36px] spatial-glass relative overflow-hidden flex flex-col justify-between text-left group">
+              {/* Thematic Section Photo */}
+              <div
+                className="absolute inset-0 bg-cover bg-center filter brightness-[0.25] contrast-[1.2] saturate-[1.3] pointer-events-none group-hover:scale-105 transition-transform duration-700"
+                style={{
+                  backgroundImage: "url('https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?q=80&w=2070&auto=format&fit=crop')"
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080D1A] via-[#080D1A]/80 to-transparent pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                  <Footprints size={24} />
+                </div>
+
+                <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">
+                  PILLAR 02
+                </span>
+                <h3 className="text-2xl font-black text-white mt-1 mb-3">GPS Run & Yo-Yo Test</h3>
+                <p className="text-slate-300 text-xs leading-relaxed mb-6">
+                  Dual-discipline running. Switch seamlessly between outdoor GPS road tracking with real Leaflet polylines and the official 20m Bangsbo Yo-Yo IR1 test.
+                </p>
+
+                <div className="space-y-2.5 mb-6">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-cyan-400" />
+                    <span>Live satellite route & sub-second pace</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-cyan-400" />
+                    <span>Official 20m shuttle beep test audio</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-cyan-400" />
+                    <span>Aerobic VO2 max benchmark score</span>
+                  </div>
+                </div>
               </div>
 
-              <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">
-                PILLAR 02
-              </span>
-              <h3 className="text-2xl font-black text-white mt-1 mb-3">GPS Run & Yo-Yo Test</h3>
-              <p className="text-slate-400 text-xs leading-relaxed mb-6">
-                Dual-discipline running. Switch seamlessly between outdoor GPS road tracking with real Leaflet polylines and the official 20m Bangsbo Yo-Yo IR1 test.
-              </p>
-
-              <div className="space-y-2.5 mb-6">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-sky-400" />
-                  <span>Live satellite route & sub-second pace</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-sky-400" />
-                  <span>Official 20m shuttle beep test audio</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-sky-400" />
-                  <span>Aerobic VO2 max benchmark score</span>
-                </div>
+              <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-cyan-400">
+                <span>Explore Running System</span>
+                <ChevronRight size={16} />
               </div>
             </div>
-
-            <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-sky-400">
-              <span>Explore Running System</span>
-              <ChevronRight size={16} />
-            </div>
-          </div>
+          </SpatialCard>
 
           {/* Card 3: Progress Analytics */}
-          <div className="h-full p-8 rounded-[36px] bg-[#0B1528] border border-white/10 shadow-2xl flex flex-col justify-between text-left hover:border-white/20 transition-all">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-6 shadow-sm">
-                <TrendingUp size={24} />
+          <SpatialCard glowColor="emerald" depth="md" className="h-full">
+            <div className="h-full p-8 rounded-[36px] spatial-glass relative overflow-hidden flex flex-col justify-between text-left group">
+              {/* Thematic Section Photo */}
+              <div
+                className="absolute inset-0 bg-cover bg-center filter brightness-[0.25] contrast-[1.2] saturate-[1.3] pointer-events-none group-hover:scale-105 transition-transform duration-700"
+                style={{
+                  backgroundImage: "url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2093&auto=format&fit=crop')"
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080D1A] via-[#080D1A]/80 to-transparent pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                  <TrendingUp size={24} />
+                </div>
+
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                  PILLAR 03
+                </span>
+                <h3 className="text-2xl font-black text-white mt-1 mb-3">Progress Intelligence</h3>
+                <p className="text-slate-300 text-xs leading-relaxed mb-6">
+                  Scientific analytics that show true bodily transformation. Track weekly volume tonnage, consistency streaks, and auto-updated personal record achievements.
+                </p>
+
+                <div className="space-y-2.5 mb-6">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-emerald-400" />
+                    <span>Volume curves & muscle group distribution</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-emerald-400" />
+                    <span>Consistency streaks with milestone badges</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                    <CheckCircle2 size={15} className="text-emerald-400" />
+                    <span>Automatic 1RM and PR tracking radar</span>
+                  </div>
+                </div>
               </div>
 
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
-                PILLAR 03
-              </span>
-              <h3 className="text-2xl font-black text-white mt-1 mb-3">Progress Intelligence</h3>
-              <p className="text-slate-400 text-xs leading-relaxed mb-6">
-                Scientific analytics that show true bodily transformation. Track weekly volume tonnage, consistency streaks, and auto-updated personal record achievements.
-              </p>
-
-              <div className="space-y-2.5 mb-6">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-emerald-400" />
-                  <span>Volume curves & muscle group distribution</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-emerald-400" />
-                  <span>Consistency streaks with milestone badges</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <CheckCircle2 size={15} className="text-emerald-400" />
-                  <span>Automatic 1RM and PR tracking radar</span>
-                </div>
+              <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-emerald-400">
+                <span>Explore Analytics</span>
+                <ChevronRight size={16} />
               </div>
             </div>
-
-            <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-bold text-emerald-400">
-              <span>Explore Analytics</span>
-              <ChevronRight size={16} />
-            </div>
-          </div>
+          </SpatialCard>
         </div>
       </motion.section>
 
@@ -899,7 +987,15 @@ export const Landing: React.FC = () => {
         </div>
 
         {/* Sandbox Card Surface (Midnight Bento Card) */}
-        <div className="p-6 sm:p-10 rounded-[36px] bg-[#0B1528] border border-white/10 shadow-2xl max-w-4xl mx-auto relative overflow-hidden">
+        <div className="p-6 sm:p-10 rounded-[36px] spatial-glass shadow-2xl max-w-4xl mx-auto relative overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center filter brightness-[0.18] contrast-[1.2] pointer-events-none"
+            style={{
+              backgroundImage: "url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070&auto=format&fit=crop')"
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#080D1A]/90 via-[#0B1528]/85 to-[#080D1A]/95 pointer-events-none" />
+          <div className="relative z-10">
           {/* TAB 1: GYM OVERLOAD LOGGER */}
           {activeSandboxTab === "gym" && (
             <motion.div
@@ -1154,6 +1250,7 @@ export const Landing: React.FC = () => {
               </div>
             </motion.div>
           )}
+          </div>
         </div>
       </motion.section>
 
@@ -1201,8 +1298,15 @@ export const Landing: React.FC = () => {
         </div>
 
         {/* Active Stage Card */}
-        <div className="p-8 sm:p-10 rounded-[36px] bg-[#0B1528] border border-white/10 shadow-2xl">
-          <div className="max-w-3xl">
+        <div className="p-8 sm:p-10 rounded-[36px] spatial-glass shadow-2xl relative overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center filter brightness-[0.16] contrast-[1.2] pointer-events-none"
+            style={{
+              backgroundImage: "url('https://images.unsplash.com/photo-1517963879433-6ad2b056d712?q=80&w=2070&auto=format&fit=crop')"
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#080D1A]/90 via-[#0B1528]/85 to-[#080D1A]/95 pointer-events-none" />
+          <div className="relative z-10 max-w-3xl">
             <span className="text-xs font-bold text-[#FF6B4A] uppercase tracking-wider mb-2 block">
               {timelineDays[selectedDayIndex].day} • {timelineDays[selectedDayIndex].tag}
             </span>
