@@ -1,12 +1,24 @@
 const getApiBaseUrl = () => {
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-  if (typeof window !== "undefined" && window.location.hostname && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    return "/api";
+  let url = import.meta.env.VITE_API_URL;
+  if (url && typeof url === "string" && url.trim()) {
+    url = url.trim().replace(/\/+$/, "");
+    if (!url.endsWith("/api")) {
+      url = `${url}/api`;
+    }
+    return url;
+  }
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    return "https://fittrack-backend-lqa6.onrender.com/api";
   }
   return "http://localhost:5000/api";
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 
 interface RequestOptions extends RequestInit {
   data?: any;

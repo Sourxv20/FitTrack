@@ -141,22 +141,38 @@ function createFallbackUser(email: string, name?: string, username?: string): Us
 }
 
 function isBackendUnreachableError(err: any): boolean {
-  if (!err) return true;
+  if (!err) return false;
   const msg = (err.message || "").toLowerCase();
+
+  // If the error explicitly came from an API HTTP response (e.g., 400, 401, 403, 404, 409, 429, 500)
+  // or contains explicit backend error messages, the API is reachable!
+  if (
+    msg.includes("invalid") ||
+    msg.includes("credential") ||
+    msg.includes("password") ||
+    msg.includes("already exists") ||
+    msg.includes("validation") ||
+    msg.includes("not found") ||
+    msg.includes("status 400") ||
+    msg.includes("status 401") ||
+    msg.includes("status 403") ||
+    msg.includes("status 404") ||
+    msg.includes("status 409") ||
+    msg.includes("status 422") ||
+    msg.includes("status 429") ||
+    msg.includes("status 500") ||
+    msg.includes("table")
+  ) {
+    return false;
+  }
+
+  // Only trigger fallback on genuine network disconnection
   return (
-    msg.includes("405") ||
-    msg.includes("404") ||
-    msg.includes("method not allowed") ||
-    msg.includes("backend server") ||
     msg.includes("failed to fetch") ||
     msg.includes("networkerror") ||
-    msg.includes("500") ||
-    msg.includes("502") ||
-    msg.includes("503") ||
+    msg.includes("unable to connect to the backend") ||
     msg.includes("load failed") ||
-    msg.includes("cors") ||
-    msg.includes("unexpected end of json") ||
-    msg.includes("token '<'")
+    (typeof navigator !== "undefined" && !navigator.onLine)
   );
 }
 

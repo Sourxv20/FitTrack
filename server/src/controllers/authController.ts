@@ -57,6 +57,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
         user: {
           id: user.id,
           name: user.name,
+          username: (validated.username || user.name).toLowerCase().replace(/[^a-z0-9_]/g, ""),
           email: user.email,
           profile: user.profile,
           settings: user.settings
@@ -72,9 +73,18 @@ export async function register(req: Request, res: Response, next: NextFunction):
 export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const validated = loginSchema.parse(req.body);
+    const identifier = validated.email.trim();
+    const isEmail = identifier.includes("@");
 
-    const user = await prisma.user.findUnique({
-      where: { email: validated.email.toLowerCase() },
+    const user = await prisma.user.findFirst({
+      where: isEmail
+        ? { email: identifier.toLowerCase() }
+        : {
+            OR: [
+              { email: identifier.toLowerCase() },
+              { name: { equals: identifier, mode: "insensitive" } }
+            ]
+          },
       include: {
         profile: true,
         settings: true
@@ -82,13 +92,13 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     });
 
     if (!user) {
-      res.status(401).json({ success: false, message: "Invalid email or password." });
+      res.status(401).json({ success: false, message: "Invalid email/username or password." });
       return;
     }
 
     const isMatch = await bcrypt.compare(validated.password, user.passwordHash);
     if (!isMatch) {
-      res.status(401).json({ success: false, message: "Invalid email or password." });
+      res.status(401).json({ success: false, message: "Invalid email/username or password." });
       return;
     }
 
@@ -101,6 +111,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
         user: {
           id: user.id,
           name: user.name,
+          username: user.name.toLowerCase().replace(/[^a-z0-9_]/g, ""),
           email: user.email,
           profile: user.profile,
           settings: user.settings
@@ -173,6 +184,7 @@ export async function emailLogin(req: Request, res: Response, next: NextFunction
         user: {
           id: user.id,
           name: user.name,
+          username: user.name.toLowerCase().replace(/[^a-z0-9_]/g, ""),
           email: user.email,
           profile: user.profile,
           settings: user.settings
@@ -238,6 +250,7 @@ export async function getMe(req: AuthenticatedRequest, res: Response, next: Next
       data: {
         id: user.id,
         name: user.name,
+        username: user.name.toLowerCase().replace(/[^a-z0-9_]/g, ""),
         email: user.email,
         createdAt: user.createdAt,
         profile: user.profile,

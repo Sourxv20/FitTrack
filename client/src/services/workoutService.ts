@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api, API_BASE_URL } from "./api";
 import { defaultExercises, defaultWorkoutPlans } from "../data/defaultGymData";
 import {
   Exercise,
@@ -359,8 +359,7 @@ export const profileService = {
 
   exportDataUrl: (format: "json" | "csv" | "gpx" = "json") => {
     const token = localStorage.getItem("fittrack_token");
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    return `${baseUrl}/profile/export?format=${format}&token=${token}`;
+    return `${API_BASE_URL}/profile/export?format=${format}&token=${token}`;
   },
 
   deleteAccount: async () => {
